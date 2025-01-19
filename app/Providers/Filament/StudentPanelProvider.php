@@ -29,6 +29,7 @@ class StudentPanelProvider extends PanelProvider
             ->id('student')
             ->path('student')
             ->login()
+            ->profile()
             ->authGuard('students')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))

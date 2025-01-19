@@ -30,7 +30,7 @@ class TeacherPanelProvider extends PanelProvider
             ->id('teacher')
             ->path('teacher')
             ->login()
-            ->default()
+            ->profile()
             ->authGuard('teachers')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
