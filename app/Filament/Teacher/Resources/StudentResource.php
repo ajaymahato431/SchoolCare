@@ -63,7 +63,7 @@ class StudentResource extends Resource
                                     ->options([
                                         'pending' => 'Pending',
                                         'approved' => 'Approved',
-                                        'rejected' => 'Approved',
+                                        'rejected' => 'Rejected',
                                     ])
                                     ->required(),
                             ]),
@@ -118,7 +118,7 @@ class StudentResource extends Resource
                 Section::make('Class Mapping')
                     ->schema([
                         Repeater::make('class_mappings')
-                            ->relationship('grades')
+                            ->relationship('classMappings')
                             ->label('')
                             ->schema([
                                 Select::make('grade_id')

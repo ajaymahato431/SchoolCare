@@ -33,7 +33,7 @@
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/<your-repository-name>/learners-log.git
+    git clone https://github.com/ajaymahato431/SchoolCare.git
     cd learners-log
     ```
 
