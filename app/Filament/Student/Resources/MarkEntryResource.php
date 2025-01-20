@@ -2,8 +2,8 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\MarkEntryResource\Pages;
-use App\Filament\Teacher\Resources\MarkEntryResource\RelationManagers;
+use App\Filament\Student\Resources\MarkEntryResource\Pages;
+use App\Filament\Student\Resources\MarkEntryResource\RelationManagers;
 use App\Models\BatchYear;
 use App\Models\ExamType;
 use App\Models\Grade;
@@ -99,7 +99,12 @@ class MarkEntryResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->where('student_id', $studentId);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('students.name')
                     ->searchable()
@@ -121,7 +126,7 @@ class MarkEntryResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('batchYears.batch')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('teachers.name')
+                Tables\Columns\TextColumn::make('Students.name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

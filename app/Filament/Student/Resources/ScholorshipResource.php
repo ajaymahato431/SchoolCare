@@ -2,8 +2,8 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\ScholorshipResource\Pages;
-use App\Filament\Teacher\Resources\ScholorshipResource\RelationManagers;
+use App\Filament\Student\Resources\ScholorshipResource\Pages;
+use App\Filament\Student\Resources\ScholorshipResource\RelationManagers;
 use App\Models\Scholorship;
 use Filament\Forms\Components\Section;
 use Filament\Forms;

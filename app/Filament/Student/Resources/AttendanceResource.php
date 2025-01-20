@@ -2,8 +2,8 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\AttendanceResource\Pages;
-use App\Filament\Teacher\Resources\AttendanceResource\RelationManagers;
+use App\Filament\Student\Resources\AttendanceResource\Pages;
+use App\Filament\Student\Resources\AttendanceResource\RelationManagers;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -37,9 +37,9 @@ class AttendanceResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required(),
-                        Forms\Components\Select::make('teacher_id')
+                        Forms\Components\Select::make('Student_id')
                             ->required()
-                            ->relationship('teachers', 'name'),
+                            ->relationship('Students', 'name'),
                         Forms\Components\Select::make('grade_id')
                             ->required()
                             ->relationship('grades', 'grade')
@@ -86,7 +86,7 @@ class AttendanceResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('teachers.name')
+                Tables\Columns\TextColumn::make('Students.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('grades.grade')
@@ -115,12 +115,12 @@ class AttendanceResource extends Resource
                     ->preload()
                     ->multiple(),
 
-                // Filter for Teachers
-                SelectFilter::make('teachers')
-                    ->label('Teacher')
-                    ->relationship('teachers', 'name') // Assuming a relationship 'teachers' exists
+                // Filter for Students
+                SelectFilter::make('Students')
+                    ->label('Student')
+                    ->relationship('Students', 'name') // Assuming a relationship 'Students' exists
                     ->options(function () {
-                        return \App\Models\Teacher::pluck('name', 'id'); // Adjust based on your Teacher model
+                        return \App\Models\Student::pluck('name', 'id'); // Adjust based on your Student model
                     })
                     ->searchable()
                     ->preload()

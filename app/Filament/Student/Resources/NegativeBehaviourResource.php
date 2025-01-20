@@ -2,8 +2,8 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\NegativeBehaviourResource\Pages;
-use App\Filament\Teacher\Resources\NegativeBehaviourResource\RelationManagers;
+use App\Filament\Student\Resources\NegativeBehaviourResource\Pages;
+use App\Filament\Student\Resources\NegativeBehaviourResource\RelationManagers;
 use App\Models\NegativeBehaviour;
 use Filament\Forms;
 use Filament\Forms\Components\Section;

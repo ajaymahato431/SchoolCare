@@ -2,9 +2,9 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\ActivitiesResource\Pages;
-use App\Filament\Teacher\Resources\ActivitiesResource\RelationManagers;
-use App\Filament\Teacher\Resources\ActivitiesResource\RelationManagers\StudentParticipationsRelationManager;
+use App\Filament\Student\Resources\ActivitiesResource\Pages;
+use App\Filament\Student\Resources\ActivitiesResource\RelationManagers;
+use App\Filament\Student\Resources\ActivitiesResource\RelationManagers\StudentParticipationsRelationManager;
 use App\Models\Activities;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -89,7 +89,7 @@ class ActivitiesResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\StudentParticipationsRelationManager::class,
+            //
         ];
     }
 

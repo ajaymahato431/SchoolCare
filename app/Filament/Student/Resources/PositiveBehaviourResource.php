@@ -2,8 +2,8 @@
 
 namespace App\Filament\Student\Resources;
 
-use App\Filament\Teacher\Resources\PositiveBehaviourResource\Pages;
-use App\Filament\Teacher\Resources\PositiveBehaviourResource\RelationManagers;
+use App\Filament\Student\Resources\PositiveBehaviourResource\Pages;
+use App\Filament\Student\Resources\PositiveBehaviourResource\RelationManagers;
 use App\Models\PositiveBehaviour;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
