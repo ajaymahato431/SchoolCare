@@ -3,8 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Student\Widgets\AdvancedStatsOverviewWidget;
+use App\Filament\Student\Widgets\ParticipationAdvancedChartWidget;
 use App\Filament\Student\Widgets\ScholarshipAdvancedChartWidget;
-use App\Filament\Teacher\Widgets\ActivitiesAdvancedChartWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -48,7 +48,7 @@ class StudentPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Student/Widgets'), for: 'App\\Filament\\Student\\Widgets')
             ->widgets([
                 AdvancedStatsOverviewWidget::class,
-                ActivitiesAdvancedChartWidget::class,
+                ParticipationAdvancedChartWidget::class,
                 ScholarshipAdvancedChartWidget::class,
             ])
             ->middleware([

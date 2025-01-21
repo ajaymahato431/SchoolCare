@@ -83,14 +83,14 @@ class AttendanceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        // $student = Auth::user();
-        // $studentId = $student->id;
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
-            // ->modifyQueryUsing(function (Builder $query) use ($studentId) {
-            //     $query->whereHas('students', function (Builder $query) use ($studentId) {
-            //         $query->where('student_id', $studentId);
-            //     });
-            // })
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->whereHas('students', function (Builder $query) use ($studentId) {
+                    $query->where('student_id', $studentId);
+                });
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -135,10 +135,7 @@ class AttendanceResource extends Resource
             ->filters([
                 SelectFilter::make('grades')
                     ->label('Grade')
-                    ->relationship('grades', 'grade') // Assuming a relationship 'grades' exists
-                    ->options(function () {
-                        return \App\Models\Grade::pluck('grade', 'id'); // Adjust based on your Grade model
-                    })
+                    ->relationship('grades', 'grade')
                     ->searchable()
                     ->preload()
                     ->multiple(),

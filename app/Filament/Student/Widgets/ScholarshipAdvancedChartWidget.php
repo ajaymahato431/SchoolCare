@@ -14,11 +14,11 @@ class ScholarshipAdvancedChartWidget extends AdvancedChartWidget
     {
         // Fetch scholarship data for the authenticated student grouped by year
         $scholarshipData = Scholorship::query()
-            ->join('scholorship_student', 'scholorships.id', '=', 'scholorship_student.scholorship_id') // Join with the pivot table
+            ->join('scholorship_student', 'scholorships.id', '=', 'scholorship_student.scholorship_id')
             ->where('scholorship_student.student_id', Auth::id()) // Filter by authenticated student
             ->selectRaw('YEAR(scholorships.year) as year, COUNT(*) as total_scholarships, SUM(scholorships.amount) as total_amount')
-            ->groupBy('year')
-            ->orderBy('year')
+            ->groupByRaw('YEAR(year)') // Group by year extracted from the 'year' column
+            ->orderByRaw('YEAR(year)') // Order by year
             ->get();
 
         return [

@@ -13,16 +13,16 @@ class ScholarshipAdvancedChartWidget extends AdvancedChartWidget
     {
         // Fetch scholarship data grouped by year
         $scholarshipData = Scholorship::query()
-            ->selectRaw('YEAR(year) as year, COUNT(*) as total_scholarships, SUM(amount) as total_amount')
-            ->groupBy('year')
-            ->orderBy('year')
+            ->selectRaw('YEAR(year) as year, COUNT(id) as total_scholarships, SUM(amount) as total_amount')
+            ->groupByRaw('YEAR(year)') // Group by year extracted from the 'year' column
+            ->orderByRaw('YEAR(year)') // Order by year
             ->get();
 
         return [
             'labels' => $scholarshipData->pluck('year')->toArray(), // Years
             'datasets' => [
                 [
-                    'label' => 'Total Scholarships',
+                    'label' => 'Total Scholarships Distributed',
                     'data' => $scholarshipData->pluck('total_scholarships')->toArray(),
                     'borderColor' => '#4CAF50',
                     'backgroundColor' => 'rgba(76, 175, 80, 0.2)',

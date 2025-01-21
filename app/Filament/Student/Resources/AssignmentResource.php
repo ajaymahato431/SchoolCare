@@ -88,14 +88,14 @@ class AssignmentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        // $student = Auth::user();
-        // $studentId = $student->id;
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
-            // ->modifyQueryUsing(function (Builder $query) use ($studentId) {
-            //     $query->whereHas('students', function (Builder $query) use ($studentId) {
-            //         $query->where('student_id', $studentId);
-            //     });
-            // })
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->whereHas('students', function (Builder $query) use ($studentId) {
+                    $query->where('student_id', $studentId);
+                });
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -146,12 +146,7 @@ class AssignmentResource extends Resource
             ->filters([
                 SelectFilter::make('grades')
                     ->label('Grade')
-                    ->relationship('grades', 'grade') // Assuming a relationship 'grades' exists
-                    // ->options(function () {
-                    //     return \App\Models\Grade::whereHas('students', function ($query) {
-                    //         $query->whereHas('assignments'); // Filter grades with related assignments
-                    //     })->pluck('grade', 'id'); // Fetch grades and their IDs
-                    // })
+                    ->relationship('grades', 'grade')
                     ->searchable()
                     ->preload()
                     ->multiple(),
@@ -159,10 +154,7 @@ class AssignmentResource extends Resource
                 // Filter for Students
                 SelectFilter::make('Subjects')
                     ->label('Subject')
-                    ->relationship('subjects', 'subject') // Assuming a relationship 'Students' exists
-                    // ->options(function () {
-                    //     return \App\Models\Subject::pluck('name', 'id'); // Adjust based on your Student model
-                    // })
+                    ->relationship('subjects', 'subject')
                     ->searchable()
                     ->preload()
                     ->multiple(),

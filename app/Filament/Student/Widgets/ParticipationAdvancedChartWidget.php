@@ -2,6 +2,7 @@
 
 namespace App\Filament\Student\Widgets;
 
+use App\Models\Activities;
 use App\Models\StudentParticipation;
 use EightyNine\FilamentAdvancedWidget\AdvancedChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -12,27 +13,30 @@ class ParticipationAdvancedChartWidget extends AdvancedChartWidget
 
     protected function getData(): array
     {
-        // Fetch participation data for the authenticated student
-        $participationData = StudentParticipation::query()
-            ->join('activities', 'student_participations.activity_id', '=', 'activities.id') // Join with activities table
-            ->where('student_participations.student_id', Auth::id()) // Filter by the authenticated student
-            ->selectRaw('YEAR(activities.start_date) as year, COUNT(*) as total_participations')
+        // Fetch the authenticated user's participation data
+        $participationData = Activities::query()
+            ->join('student_participations', 'activities.id', '=', 'student_participations.activity_id')
+            ->where('student_participations.student_id', Auth::id())
+            ->selectRaw('YEAR(activities.start_date) as year, COUNT(*) as total_activities')
             ->groupBy('year')
             ->orderBy('year')
             ->get();
 
         return [
-            'labels' => $participationData->pluck('year')->toArray(), // Years
+            'labels' => $participationData->pluck('year')->toArray(), // Extract years for the labels
             'datasets' => [
                 [
-                    'label' => 'Total Activities Participated',
-                    'data' => $participationData->pluck('total_participations')->toArray(),
-                    'backgroundColor' => 'rgba(54, 162, 235, 0.5)', // Light blue
-                    'borderColor' => 'rgba(54, 162, 235, 1)',       // Blue
+                    'label' => 'Activities Participated By Student',
+                    'data' => $participationData->pluck('total_activities')->toArray(), // Extract unique activity counts
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.5)', // Light red
+                    'borderColor' => 'rgba(255, 99, 132, 1)',       // Red
+                    'borderWidth' => 1,
                 ],
             ],
         ];
     }
+
+
 
     protected function getType(): string
     {
