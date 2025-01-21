@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class ScholorshipResource extends Resource
 {
@@ -60,7 +61,14 @@ class ScholorshipResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->whereHas('students', function (Builder $query) use ($studentId) {
+                    $query->where('student_id', $studentId);
+                });
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -85,12 +93,12 @@ class ScholorshipResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -105,9 +113,9 @@ class ScholorshipResource extends Resource
     {
         return [
             'index' => Pages\ListScholorships::route('/'),
-            'create' => Pages\CreateScholorship::route('/create'),
+            'create' => Pages\CreateScholorship::route('/createeeeeee'),
             'view' => Pages\ViewScholorship::route('/{record}'),
-            'edit' => Pages\EditScholorship::route('/{record}/edit'),
+            'edit' => Pages\EditScholorship::route('/{record}/edittttttt'),
         ];
     }
 }

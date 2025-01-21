@@ -181,12 +181,12 @@ class MarkEntryResource extends Resource
             ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -201,9 +201,9 @@ class MarkEntryResource extends Resource
     {
         return [
             'index' => Pages\ListMarkEntries::route('/'),
-            'create' => Pages\CreateMarkEntry::route('/create'),
+            'create' => Pages\CreateMarkEntry::route('/createeeeeee'),
             'view' => Pages\ViewMarkEntry::route('/{record}'),
-            'edit' => Pages\EditMarkEntry::route('/{record}/edit'),
+            'edit' => Pages\EditMarkEntry::route('/{record}/editttttt'),
         ];
     }
 }

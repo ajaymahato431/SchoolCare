@@ -56,48 +56,50 @@ class AssignmentResource extends Resource
                             ->required(),
                     ])->columns(3),
 
-                Section::make('Students')
-                    ->schema([
-                        CheckboxList::make('students')
-                            ->columnSpan('full')
-                            ->columns(5)
-                            ->bulkToggleable()
-                            ->searchable()
-                            ->relationship('students', 'name')
-                            ->options(function (callable $get) {
-                                $selectedGradeId = $get('grade_id'); // Get the selected grade
-                                if (!$selectedGradeId) {
-                                    return [];
-                                }
+                // Section::make('Students')
+                //     ->schema([
+                //         CheckboxList::make('students')
+                //             ->columnSpan('full')
+                //             ->columns(5)
+                //             ->bulkToggleable()
+                //             ->searchable()
+                //             ->relationship('students', 'name')
+                //             ->options(function (callable $get) {
+                //                 $selectedGradeId = $get('grade_id'); // Get the selected grade
+                //                 if (!$selectedGradeId) {
+                //                     return [];
+                //                 }
 
-                                return \App\Models\Student::query()
-                                    ->whereHas('classMappings', function ($query) use ($selectedGradeId) {
-                                        $query->where('grade_id', $selectedGradeId)
-                                            ->whereRaw('id = (
-                        SELECT MAX(id)
-                        FROM class_mappings cm
-                        WHERE cm.student_id = class_mappings.student_id
-                    )');
-                                    })
-                                    ->pluck('name', 'id'); // Return an array of student names and IDs
-                            }),
+                //                 return \App\Models\Student::query()
+                //                     ->whereHas('classMappings', function ($query) use ($selectedGradeId) {
+                //                         $query->where('grade_id', $selectedGradeId)
+                //                             ->whereRaw('id = (
+                //         SELECT MAX(id)
+                //         FROM class_mappings cm
+                //         WHERE cm.student_id = class_mappings.student_id
+                //     )');
+                //                     })
+                //                     ->pluck('name', 'id'); // Return an array of student names and IDs
+                //             }),
 
-                    ]),
+                //     ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
-        $user = Auth::user();
-        $userid = $user->id;
+        // $student = Auth::user();
+        // $studentId = $student->id;
         return $table
-            ->modifyQueryUsing(function (Builder $query) use ($userid) {
-                $query->where('$user_id', 'userid');
-            })
+            // ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+            //     $query->whereHas('students', function (Builder $query) use ($studentId) {
+            //         $query->where('student_id', $studentId);
+            //     });
+            // })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('Students.name')
+                Tables\Columns\TextColumn::make('teachers.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('grades.grade')
@@ -112,6 +114,26 @@ class AssignmentResource extends Resource
                 Tables\Columns\TextColumn::make('submission_date')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status') // Label for the column
+
+                    ->getStateUsing(function ($record) {
+                        $studentId = Auth::guard('students')->id(); // Get the logged-in student ID
+                        $isCompleted = $record->students->contains(function ($student) use ($studentId) {
+                            return $student->id === $studentId; // Check if the student is related to the assignment
+                        });
+
+                        return $isCompleted ? 'Completed' : 'Not Complete'; // Show status text
+                    })
+                    ->color(function ($record) {
+                        $studentId = Auth::guard('students')->id(); // Get the logged-in student ID
+                        $isCompleted = $record->students->contains(function ($student) use ($studentId) {
+                            return $student->id === $studentId; // Check if the student is related to the assignment
+                        });
+
+                        return $isCompleted ? 'success' : 'danger'; // Green for "Completed", Red for "Not Complete"
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -125,20 +147,22 @@ class AssignmentResource extends Resource
                 SelectFilter::make('grades')
                     ->label('Grade')
                     ->relationship('grades', 'grade') // Assuming a relationship 'grades' exists
-                    ->options(function () {
-                        return \App\Models\Grade::pluck('grade', 'id'); // Adjust based on your Grade model
-                    })
+                    // ->options(function () {
+                    //     return \App\Models\Grade::whereHas('students', function ($query) {
+                    //         $query->whereHas('assignments'); // Filter grades with related assignments
+                    //     })->pluck('grade', 'id'); // Fetch grades and their IDs
+                    // })
                     ->searchable()
                     ->preload()
                     ->multiple(),
 
                 // Filter for Students
-                SelectFilter::make('Students')
-                    ->label('Student')
-                    ->relationship('Students', 'name') // Assuming a relationship 'Students' exists
-                    ->options(function () {
-                        return \App\Models\Student::pluck('name', 'id'); // Adjust based on your Student model
-                    })
+                SelectFilter::make('Subjects')
+                    ->label('Subject')
+                    ->relationship('subjects', 'subject') // Assuming a relationship 'Students' exists
+                    // ->options(function () {
+                    //     return \App\Models\Subject::pluck('name', 'id'); // Adjust based on your Student model
+                    // })
                     ->searchable()
                     ->preload()
                     ->multiple(),
@@ -199,12 +223,12 @@ class AssignmentResource extends Resource
             ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -219,9 +243,9 @@ class AssignmentResource extends Resource
     {
         return [
             'index' => Pages\ListAssignments::route('/'),
-            'create' => Pages\CreateAssignment::route('/create'),
+            'create' => Pages\CreateAssignment::route('/createeeeee'),
             'view' => Pages\ViewAssignment::route('/{record}'),
-            'edit' => Pages\EditAssignment::route('/{record}/edit'),
+            'edit' => Pages\EditAssignment::route('/{record}/edittttttt'),
         ];
     }
 }

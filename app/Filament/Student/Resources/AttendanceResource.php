@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceResource extends Resource
 {
@@ -37,12 +38,12 @@ class AttendanceResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required(),
-                        Forms\Components\Select::make('Student_id')
+                        Forms\Components\Select::make('teacher_id')
                             ->required()
-                            ->relationship('Students', 'name'),
+                            ->relationship('teachers', 'name'),
                         Forms\Components\Select::make('grade_id')
                             ->required()
-                            ->relationship('grades', 'grade')
+                            ->relationship('grades', titleAttribute: 'grade')
                             ->label('Select Grade')
                             ->reactive(),
                         Forms\Components\DatePicker::make('attendance_date')
@@ -50,43 +51,50 @@ class AttendanceResource extends Resource
                             ->required(),
                     ])->columns(2),
 
-                Section::make('Students')
-                    ->schema([
-                        CheckboxList::make('student_id')
-                            ->columnSpan('full')
-                            ->columns(5)
-                            ->bulkToggleable()
-                            ->searchable()
-                            ->label('Students')
-                            ->relationship('students', 'name')
-                            ->options(function (callable $get) {
-                                $selectedGradeId = $get('grade_id'); // Get the selected grade
-                                if (!$selectedGradeId) {
-                                    return [];
-                                }
+                // Section::make('Students')
+                //     ->schema([
+                //         CheckboxList::make('student_id')
+                //             ->columnSpan('full')
+                //             ->columns(5)
+                //             ->bulkToggleable()
+                //             ->searchable()
+                //             ->label('Students')
+                //             ->relationship('students', 'name')
+                //             ->options(function (callable $get) {
+                //                 $selectedGradeId = $get('grade_id'); // Get the selected grade
+                //                 if (!$selectedGradeId) {
+                //                     return [];
+                //                 }
 
-                                return \App\Models\Student::query()
-                                    ->whereHas('classMappings', function ($query) use ($selectedGradeId) {
-                                        $query->where('grade_id', $selectedGradeId)
-                                            ->whereRaw('id = (
-                        SELECT MAX(id)
-                        FROM class_mappings cm
-                        WHERE cm.student_id = class_mappings.student_id
-                    )');
-                                    })
-                                    ->pluck('name', 'id'); // Return an array of student names and IDs
-                            }),
-                    ])
+                //                 return \App\Models\Student::query()
+                //                     ->whereHas('classMappings', function ($query) use ($selectedGradeId) {
+                //                         $query->where('grade_id', $selectedGradeId)
+                //                             ->whereRaw('id = (
+                //         SELECT MAX(id)
+                //         FROM class_mappings cm
+                //         WHERE cm.student_id = class_mappings.student_id
+                //     )');
+                //                     })
+                //                     ->pluck('name', 'id'); // Return an array of student names and IDs
+                //             }),
+                //     ])
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        // $student = Auth::user();
+        // $studentId = $student->id;
         return $table
+            // ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+            //     $query->whereHas('students', function (Builder $query) use ($studentId) {
+            //         $query->where('student_id', $studentId);
+            //     });
+            // })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('Students.name')
+                Tables\Columns\TextColumn::make('teachers.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('grades.grade')
@@ -94,6 +102,26 @@ class AttendanceResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('attendance_date')
                     ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status') // Label for the column
+
+                    ->getStateUsing(function ($record) {
+                        $studentId = Auth::guard('students')->id(); // Get the logged-in student ID
+                        $isPresent = $record->students->contains(function ($student) use ($studentId) {
+                            return $student->id === $studentId; // Check if the student is related to the assignment
+                        });
+
+                        return $isPresent ? 'Present' : 'Not Present'; // Show status text
+                    })
+                    ->color(function ($record) {
+                        $studentId = Auth::guard('students')->id(); // Get the logged-in student ID
+                        $isCompleted = $record->students->contains(function ($student) use ($studentId) {
+                            return $student->id === $studentId; // Check if the student is related to the assignment
+                        });
+
+                        return $isCompleted ? 'success' : 'danger'; // Green for "Completed", Red for "Not Complete"
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -110,17 +138,6 @@ class AttendanceResource extends Resource
                     ->relationship('grades', 'grade') // Assuming a relationship 'grades' exists
                     ->options(function () {
                         return \App\Models\Grade::pluck('grade', 'id'); // Adjust based on your Grade model
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->multiple(),
-
-                // Filter for Students
-                SelectFilter::make('Students')
-                    ->label('Student')
-                    ->relationship('Students', 'name') // Assuming a relationship 'Students' exists
-                    ->options(function () {
-                        return \App\Models\Student::pluck('name', 'id'); // Adjust based on your Student model
                     })
                     ->searchable()
                     ->preload()
@@ -156,12 +173,12 @@ class AttendanceResource extends Resource
             // ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -176,9 +193,9 @@ class AttendanceResource extends Resource
     {
         return [
             'index' => Pages\ListAttendances::route('/'),
-            'create' => Pages\CreateAttendance::route('/create'),
+            'create' => Pages\CreateAttendance::route('/createeeeee'),
             'view' => Pages\ViewAttendance::route('/{record}'),
-            'edit' => Pages\EditAttendance::route('/{record}/edit'),
+            'edit' => Pages\EditAttendance::route('/{record}/edittttttt'),
         ];
     }
 }

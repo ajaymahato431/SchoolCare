@@ -47,9 +47,25 @@ class ActivitiesResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->whereHas('studentParticipations', function (Builder $query) use ($studentId) {
+                    $query->where('student_id', $studentId);
+                });
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('studentParticipations.obtained_rank')
+                    ->label('Your Rank')
+                    ->getStateUsing(function ($record) {
+                        $studentId = Auth::guard('students')->id(); // Get the authenticated student's ID
+                        $participation = $record->studentParticipations->firstWhere('student_id', $studentId);
+
+                        return $participation ? $participation->obtained_rank : 'N/A'; // Display rank or 'N/A' if not found
+                    })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('start_date')
                     ->date()
@@ -97,9 +113,9 @@ class ActivitiesResource extends Resource
     {
         return [
             'index' => Pages\ListActivities::route('/'),
-            'create' => Pages\CreateActivities::route('/create'),
+            'create' => Pages\CreateActivities::route('/createeee'),
             'view' => Pages\ViewActivities::route('/{record}'),
-            'edit' => Pages\EditActivities::route('/{record}/edit'),
+            'edit' => Pages\EditActivities::route('/{record}/edittttt'),
 
         ];
     }

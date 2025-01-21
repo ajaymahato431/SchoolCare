@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class PositiveBehaviourResource extends Resource
 {
@@ -79,7 +80,12 @@ class PositiveBehaviourResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->where('student_id', $studentId);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('students.name')
                     ->searchable()
@@ -105,12 +111,12 @@ class PositiveBehaviourResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -125,9 +131,9 @@ class PositiveBehaviourResource extends Resource
     {
         return [
             'index' => Pages\ListPositiveBehaviours::route('/'),
-            'create' => Pages\CreatePositiveBehaviour::route('/create'),
+            'create' => Pages\CreatePositiveBehaviour::route('/createeeeeee'),
             'view' => Pages\ViewPositiveBehaviour::route('/{record}'),
-            'edit' => Pages\EditPositiveBehaviour::route('/{record}/edit'),
+            'edit' => Pages\EditPositiveBehaviour::route('/{record}/editttttt'),
         ];
     }
 }
