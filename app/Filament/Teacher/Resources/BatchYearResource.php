@@ -17,7 +17,7 @@ class BatchYearResource extends Resource
 {
     protected static ?string $model = BatchYear::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-date-range';
     protected static ?string $navigationGroup = 'Setup';
 
     protected static ?int $navigationSort = 5;

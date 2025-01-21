@@ -18,7 +18,7 @@ class ActivitiesResource extends Resource
 {
     protected static ?string $model = Activities::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-rocket-launch';
 
     protected static ?string $navigationGroup = 'Tracking';
 

@@ -24,7 +24,7 @@ class MarkEntryResource extends Resource
 {
     protected static ?string $model = MarkEntry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-numbered-list';
 
     protected static ?string $navigationGroup = 'Tracking';
 

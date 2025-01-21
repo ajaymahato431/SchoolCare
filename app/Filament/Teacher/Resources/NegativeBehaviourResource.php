@@ -18,7 +18,7 @@ class NegativeBehaviourResource extends Resource
 {
     protected static ?string $model = NegativeBehaviour::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-minus';
 
     protected static ?string $navigationGroup = 'Tracking';
 
