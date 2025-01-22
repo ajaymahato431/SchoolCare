@@ -167,18 +167,7 @@ class MarkEntryResource extends Resource
                     })
                     ->searchable()
                     ->preload(),
-
-                // Filter for Batch Years
-                SelectFilter::make('batch_year_id')
-                    ->label('Batch Year')
-                    ->relationship('batchYears', 'batch') // Assuming a relationship 'batchYears' exists
-                    ->options(function () {
-                        return BatchYear::pluck('batch', 'id'); // Fetch batch year options
-                    })
-                    ->searchable()
-                    ->preload(),
             ])
-            ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),

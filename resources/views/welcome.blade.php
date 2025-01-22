@@ -371,7 +371,7 @@
                 </div>
 
                 <div class="regi-link animation" style="--li:21; --S:5">
-                    <p>Don't have an account? <br> <a href="#" class="SignInLink">Sign Up</a></p>
+                    <p>Are you a teacher? <br> <a href="#" class="SignInLink">Register as teacher</a></p>
                 </div>
             </form>
         </div>
