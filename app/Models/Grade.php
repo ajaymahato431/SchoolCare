@@ -16,6 +16,11 @@ class Grade extends Model
         return $this->hasMany(Attendance::class, 'grade_id');
     }
 
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class, 'grade_id');
+    }
+
     public function positiveBehaviours()
     {
         return $this->hasMany(PositiveBehaviour::class, 'grade_id');

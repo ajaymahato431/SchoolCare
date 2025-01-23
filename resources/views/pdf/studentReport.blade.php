@@ -150,6 +150,20 @@
                 @empty
                     <p>No assignments available.</p>
                 @endforelse
+
+                {{-- @forelse ($groupedAttendances as $gradeId => $attendances)
+                    @php
+                        $grade = \App\Models\Grade::find($gradeId); // Replace with the actual Grade model namespace
+                        $total_school = $grade ? $grade->attendances->count() : 0;
+
+                        $total_attendance = $attendances->count();
+                        $attendance_percentage = $total_school > 0 ? ($total_attendance / $total_school) * 100 : 0;
+                    @endphp
+                    <h3>Grade: {{ $grade ? $grade->name : 'Unknown Grade' }}</h3>
+                    <p>Total Attendance: {{ number_format($attendance_percentage, 2) }}%</p>
+                @empty
+                    <p>No attendance records available.</p>
+                @endforelse --}}
             </div>
         </div>
 
