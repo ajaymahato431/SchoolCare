@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use Filament\Http\Middleware\Authenticate;
+use App\Filament\Teacher\Widgets\ActivitiesAdvancedChartWidget;
+use App\Filament\Teacher\Widgets\AdvancedStatsOverviewWidget;
+use App\Filament\Teacher\Widgets\ScholarshipAdvancedChartWidget;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -31,7 +34,11 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
-
+            ->navigationGroups([
+                'Tracking',
+                'Setup',
+                'User Section',
+            ])
             ->brandLogoHeight('50px')
             ->colors([
                 'primary' => Color::Sky,
@@ -43,7 +50,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                AdvancedStatsOverviewWidget::class,
+                ScholarshipAdvancedChartWidget::class,
+                ActivitiesAdvancedChartWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

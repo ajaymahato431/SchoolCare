@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Student\Resources;
 
-use App\Filament\Resources\TeacherResource\Pages;
-use App\Filament\Resources\TeacherResource\RelationManagers;
-use App\Models\Teacher;
+use App\Filament\Student\Resources\StudentResource\Pages;
+use App\Filament\Student\Resources\StudentResource\RelationManagers;
+use App\Models\Student;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -18,23 +19,25 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
-class TeacherResource extends Resource
+class StudentResource extends Resource
 {
-    protected static ?string $model = Teacher::class;
+    protected static ?string $model = Student::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static ?string $navigationGroup = 'User Section';
+    protected static ?string $navigationGroup = 'Profile Section';
+    protected static ?string $navigationLabel = 'Profile';
 
-    protected static ?int $navigationSort = 1;
-
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Teacher Information')
+                Section::make('Student Information')
                     ->schema([
                         Fieldset::make('Account Details')
                             ->schema([
@@ -57,13 +60,12 @@ class TeacherResource extends Resource
                                     ->required()
                                     ->maxLength(255),
 
-
                                 Select::make('status')
                                     ->label('Status')
                                     ->options([
                                         'pending' => 'Pending',
                                         'approved' => 'Approved',
-                                        'rejected' => 'Approved',
+                                        'rejected' => 'Rejected',
                                     ])
                                     ->required(),
                             ]),
@@ -71,8 +73,8 @@ class TeacherResource extends Resource
 
                 Section::make('Personal Details')
                     ->schema([
-                        Repeater::make('teacher_details')
-                            ->relationship('teacherDetails')
+                        Repeater::make('student_details')
+                            ->relationship('studentDetails')
                             ->label('')
                             ->schema([
                                 TextInput::make('phone')
@@ -103,9 +105,8 @@ class TeacherResource extends Resource
                                     ->relationship('wards', 'ward')
                                     ->nullable(),
 
-                                Select::make('subject_id')
-                                    ->label('Subject')
-                                    ->relationship('subjects', 'subject')
+                                TextInput::make('blood_group')
+                                    ->label('Blood Group')
                                     ->nullable(),
                             ])
                             ->defaultItems(1)
@@ -114,34 +115,67 @@ class TeacherResource extends Resource
                             ->deletable(false)
                             ->disableItemCreation(),
                     ]),
+
+
+                Section::make('Class Mapping')
+                    ->schema([
+                        Repeater::make('class_mappings')
+                            ->relationship('classMappings')
+                            ->label('')
+                            ->schema([
+                                Select::make('grade_id')
+                                    ->required()
+                                    ->relationship('grades', 'grade'),
+                                Select::make('section_id')
+                                    ->required()
+                                    ->relationship('sections', 'section'),
+                                DatePicker::make('start_date'),
+                                DatePicker::make('end_date'),
+                            ])
+                            ->defaultItems(1)
+                            ->columns(3)
+                            ->columnSpanFull()
+                            ->deletable(false)
+                    ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $student = Auth::user();
+        $studentId = $student->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($studentId) {
+                $query->where('id', $studentId);
+            })
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('teacherDetails.phone')
+                Tables\Columns\TextColumn::make('studentDetails.phone')
                     ->searchable()
                     ->label('Phone')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('teacherDetails.address')
+                Tables\Columns\TextColumn::make('studentDetails.address')
                     ->searchable()
                     ->label('Address')
                     ->sortable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options([
-                        'approved' => 'Approved',
-                        'reject' => 'Reject',
-                        'pending' => 'Pending',
-                    ]),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'approved' => 'success',
+                        'pending' => 'warning',
+                        'rejected' => 'danger',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -155,13 +189,12 @@ class TeacherResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('Download Report')
+                    ->url(fn($record) => route('studentReport.pdf', $record->id))
+                    ->openUrlInNewTab()
+                    ->label('Download Report')
+                    ->icon('heroicon-o-arrow-down-tray'),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -175,10 +208,10 @@ class TeacherResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTeachers::route('/'),
-            'create' => Pages\CreateTeacher::route('/create'),
-            'view' => Pages\ViewTeacher::route('/{record}'),
-            'edit' => Pages\EditTeacher::route('/{record}/edit'),
+            'index' => Pages\ListStudents::route('/'),
+            'create' => Pages\CreateStudent::route('/createeeeee'),
+            'view' => Pages\ViewStudent::route('/{record}'),
+            'edit' => Pages\EditStudent::route('/{record}/editttttt'),
         ];
     }
 }

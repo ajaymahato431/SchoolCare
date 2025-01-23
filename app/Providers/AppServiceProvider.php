@@ -32,9 +32,5 @@ class AppServiceProvider extends ServiceProvider
 
         Teacher::observe(TeacherObserver::class);
         Student::observe(StudentObserver::class);
-
-        Filament::registerWidgets([
-            AdvancedStatsOverviewWidget::class,
-        ]);
     }
 }

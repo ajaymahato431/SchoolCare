@@ -35,7 +35,11 @@ class TeacherPanelProvider extends PanelProvider
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
-
+            ->navigationGroups([
+                'Tracking',
+                'Setup',
+                'User Section',
+            ])
             ->brandLogoHeight('50px')
             ->passwordReset()
             ->colors([
