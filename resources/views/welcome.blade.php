@@ -292,6 +292,13 @@
             transform: rotate(-11deg) skewY(-41deg);
             transition-delay: 1.2s;
         }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 
 </head>
@@ -304,25 +311,32 @@
             <h2 class="animation" style="--D:0; --S:21">Register</h2>
             <form action="{{ route('teacher.store') }}" method="POST">
                 @csrf
+
                 <div class="input-box animation" style="--li:18; --S:1">
-                    <input type="text" id="name" name="name" oninput="this.setAttribute('value', this.value)"
-                        required>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" required>
                     <label for="name">Name</label>
                     <box-icon type='solid' name='user'></box-icon>
+                    @error('name')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:19; --S:2">
-                    <input type="email" id="email" name="email" oninput="this.setAttribute('value', this.value)"
-                        required>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required>
                     <label for="email">Email</label>
                     <box-icon name='envelope' type='solid'></box-icon>
+                    @error('email')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:19; --S:3">
-                    <input type="text" id="phone" name="phone" oninput="this.setAttribute('value', this.value)"
-                        required>
+                    <input type="text" id="phone" name="phone" value="{{ old('phone') }}" required>
                     <label for="phone">Phone</label>
                     <box-icon name='phone' type='solid'></box-icon>
+                    @error('phone')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:20; --S:4">
@@ -350,6 +364,9 @@
                         required>
                     <label for="name">Name</label>
                     <box-icon type='solid' name='user'></box-icon>
+                    @error('name')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:19; --S:2">
@@ -357,6 +374,9 @@
                         required>
                     <label for="email">Email</label>
                     <box-icon name='envelope' type='solid'></box-icon>
+                    @error('email')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:19; --S:3">
@@ -364,6 +384,9 @@
                         required>
                     <label for="phone">Phone</label>
                     <box-icon name='phone' type='solid'></box-icon>
+                    @error('phone')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="input-box animation" style="--li:20; --S:4">
@@ -382,6 +405,57 @@
         </div>
 
     </div>
+
+    @if (session('success'))
+        <div id="custom-alert" class="custom-alert">
+            <div class="custom-alert-content">
+                <p>{{ session('success') }}</p>
+                <button onclick="closeAlert()">OK</button>
+            </div>
+        </div>
+
+        <script>
+            function closeAlert() {
+                document.getElementById('custom-alert').style.display = 'none';
+            }
+
+            // Auto-close after 3 seconds
+            setTimeout(() => {
+                closeAlert();
+            }, 3000);
+        </script>
+
+        <style>
+            .custom-alert {
+                position: fixed;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                z-index: 9999;
+                width: 300px;
+                font-size: 16px;
+            }
+
+            .custom-alert-content button {
+                background: white;
+                color: #28a745;
+                border: none;
+                padding: 5px 10px;
+                margin-top: 10px;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+        </style>
+    @endif
+
+    <!-- Include SweetAlert -->
+    @include('sweetalert::alert')
 
     <script src="index.js"></script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>

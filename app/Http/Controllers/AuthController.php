@@ -34,7 +34,7 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->back()->with('success', 'Teacher registered successfully!');
+        return redirect()->back()->with('success', 'Teacher registered successfully! Login Credintials will be sent to your email.');
     }
 
     public function studentStore(Request $request)
@@ -60,6 +60,6 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->back()->with('success', 'Student registered successfully!');
+        return redirect()->back()->with('success', 'Teacher registered successfully! Login Credintials will be sent to your email.');
     }
 }

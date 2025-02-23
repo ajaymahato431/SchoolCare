@@ -1,8 +1,8 @@
-# Learners Log
+# School Care
 
 ## Overview
 
-**Learners Log** is a comprehensive school and college management system developed during the BIC Hackathon v4.0 by Team Deadline Junkies. This platform allows schools and colleges to track, manage, and report on every aspect of student life, including academics, extracurricular activities (ECA), behavioral activities, and more. The system provides detailed summarized reports accessible to teachers, students, and parents according to their roles.
+**School Care** is a comprehensive school and college management system developed during the BIC Hackathon v4.0 by Team Deadline Junkies. This platform allows schools and colleges to track, manage, and report on every aspect of student life, including academics, extracurricular activities (ECA), behavioral activities, and more. The system provides detailed summarized reports accessible to teachers, students, and parents according to their roles.
 
 ### Key Features
 

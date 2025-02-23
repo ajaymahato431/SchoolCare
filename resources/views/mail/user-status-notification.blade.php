@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Learner's Log User Registraton</title>
+    <title>SchoolCare User Registraton</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,7 +61,7 @@
     <div class="email-container">
         <!-- Email Header -->
         <div class="header">
-            <h1>Learner's Log User Registration Update</h1>
+            <h1>SchoolCare User Registration Update</h1>
         </div>
 
         <!-- Email Content -->
@@ -70,12 +70,12 @@
             <p>{{ $data['message1'] }}</p>
             <p>{{ $data['message2'] }}</p>
             <p>{{ $data['message3'] }}</p>
-            <p>Thank you and regards,<br>Learner's Log Team</p>
+            <p>Thank you and regards,<br>SchoolCare Team</p>
         </div>
 
         <!-- Email Footer -->
         <div class="footer">
-            <p>&copy; {{ date('Y') }} Learner's Log. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} SchoolCare. All rights reserved.</p>
         </div>
     </div>
 </body>
