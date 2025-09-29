@@ -31,6 +31,7 @@ class StudentPanelProvider extends PanelProvider
             ->login()
             ->profile()
             ->authGuard('students')
+            ->authPasswordBroker('students')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()

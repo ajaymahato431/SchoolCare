@@ -17,9 +17,14 @@ return new class extends Migration
             $table->string('phone', 15)->nullable();
             $table->string('address')->nullable();
             $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
-            $table->foreignId('municipality_id')->constrained()->nullable();
-            $table->foreignId('ward_id')->constrained()->nullable();
-            $table->foreignId('subject_id')->constrained()->nullable();
+            $table->unsignedBigInteger('municipality_id')->nullable();
+            $table->foreign('municipality_id')->references('id')->on('municipalities');
+
+            $table->unsignedBigInteger('ward_id')->nullable();
+            $table->foreign('ward_id')->references('id')->on('wards');
+
+            $table->unsignedBigInteger('subject_id')->nullable();
+            $table->foreign('subject_id')->references('id')->on('subjects');
             $table->timestamps();
         });
     }

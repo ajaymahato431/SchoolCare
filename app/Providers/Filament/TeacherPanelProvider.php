@@ -32,6 +32,7 @@ class TeacherPanelProvider extends PanelProvider
             ->login()
             ->profile()
             ->authGuard('teachers')
+            ->authPasswordBroker('teachers')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()

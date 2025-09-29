@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->login()
             ->authGuard('admins')
+            ->passwordReset()
+            ->authPasswordBroker('admins')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
