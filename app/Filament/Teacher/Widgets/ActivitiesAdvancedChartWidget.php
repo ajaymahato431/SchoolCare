@@ -2,25 +2,29 @@
 
 namespace App\Filament\Teacher\Widgets;
 
-use EightyNine\FilamentAdvancedWidget\AdvancedChartWidget;
 use App\Models\StudentParticipation;
+use App\Support\Concerns\BuildsYearExpression;
+use EightyNine\FilamentAdvancedWidget\AdvancedChartWidget;
 
 class ActivitiesAdvancedChartWidget extends AdvancedChartWidget
 {
+    use BuildsYearExpression;
+
     protected static ?string $heading = 'Student Participation Overview (Grouped by Year)';
 
     protected function getData(): array
     {
-        // Fetch participation data grouped by year
+        $yearExpression = $this->yearExpression('activities.start_date');
+
         $participationData = StudentParticipation::query()
             ->join('activities', 'student_participations.activity_id', '=', 'activities.id')
-            ->selectRaw('YEAR(activities.start_date) as year, COUNT(*) as total_participants')
+            ->selectRaw("{$yearExpression} as year, COUNT(*) as total_participants")
             ->groupBy('year')
             ->orderBy('year')
             ->get();
 
         return [
-            'labels' => $participationData->pluck('year')->toArray(), // Years
+            'labels' => $participationData->pluck('year')->toArray(),
             'datasets' => [
                 [
                     'label' => 'Total Participants',
@@ -34,6 +38,6 @@ class ActivitiesAdvancedChartWidget extends AdvancedChartWidget
 
     protected function getType(): string
     {
-        return 'line'; // Line chart type
+        return 'line';
     }
 }

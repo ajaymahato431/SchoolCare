@@ -2,24 +2,28 @@
 
 namespace App\Filament\Teacher\Widgets;
 
-use EightyNine\FilamentAdvancedWidget\AdvancedChartWidget;
 use App\Models\Scholorship;
+use App\Support\Concerns\BuildsYearExpression;
+use EightyNine\FilamentAdvancedWidget\AdvancedChartWidget;
 
 class ScholarshipAdvancedChartWidget extends AdvancedChartWidget
 {
+    use BuildsYearExpression;
+
     protected static ?string $heading = 'Scholarship Distribution Over Time';
 
     protected function getData(): array
     {
-        // Fetch scholarship data grouped by year
+        $yearExpression = $this->yearExpression('scholorships.year');
+
         $scholarshipData = Scholorship::query()
-            ->selectRaw('YEAR(year) as year, COUNT(id) as total_scholarships, SUM(amount) as total_amount')
-            ->groupByRaw('YEAR(year)') // Group by year extracted from the 'year' column
-            ->orderByRaw('YEAR(year)') // Order by year
+            ->selectRaw("{$yearExpression} as year, COUNT(id) as total_scholarships, SUM(amount) as total_amount")
+            ->groupBy('year')
+            ->orderBy('year')
             ->get();
 
         return [
-            'labels' => $scholarshipData->pluck('year')->toArray(), // Years
+            'labels' => $scholarshipData->pluck('year')->toArray(),
             'datasets' => [
                 [
                     'label' => 'Total Scholarships Distributed',
@@ -39,6 +43,6 @@ class ScholarshipAdvancedChartWidget extends AdvancedChartWidget
 
     protected function getType(): string
     {
-        return 'line'; // Line chart type
+        return 'line';
     }
 }
