@@ -26,12 +26,27 @@
             background: #25252b;
         }
 
+        .logo-container {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            /* Ensures the logo is on top of the curved shapes */
+        }
+
+        .logo {
+            height: 60px;
+            /* You can adjust the size of your logo */
+            width: auto;
+        }
+
         .container {
             position: relative;
             width: 750px;
             height: 450px;
-            border: 2px solid #ff2770;
-            box-shadow: 0 0 25px #ff2770;
+            border: 2px solid #00aeff;
+            box-shadow: 0 0 25px #00aeff;
             overflow: hidden;
         }
 
@@ -64,7 +79,6 @@
         }
 
         .form-box.Register {
-            /* display: none; */
             right: 0;
             padding: 0 60px;
         }
@@ -112,7 +126,7 @@
 
         .input-box input:focus,
         .input-box input:valid {
-            border-bottom: 2px solid #ff2770;
+            border-bottom: 2px solid #00aeff;
         }
 
         .input-box label {
@@ -128,7 +142,7 @@
         .input-box input:focus~label,
         .input-box input:valid~label {
             top: -5px;
-            color: #ff2770;
+            color: #00aeff;
         }
 
         .input-box box-icon {
@@ -142,7 +156,7 @@
 
         .input-box input:focus~box-icon,
         .input-box input:valid~box-icon {
-            color: #ff2770;
+            color: #00aeff;
         }
 
         .btn {
@@ -154,7 +168,7 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            border: 2px solid #ff2770;
+            border: 2px solid #00aeff;
             overflow: hidden;
             z-index: 1;
         }
@@ -164,7 +178,7 @@
             position: absolute;
             height: 300%;
             width: 100%;
-            background: linear-gradient(#25252b, #ff2770, #25252b, #ff2770);
+            background: linear-gradient(#25252b, #00aeff, #25252b, #00aeff);
             top: -100%;
             left: 0;
             z-index: -1;
@@ -183,7 +197,7 @@
 
         .regi-link a {
             text-decoration: none;
-            color: #ff2770;
+            color: #00aeff;
             font-weight: 600;
         }
 
@@ -223,7 +237,6 @@
         }
 
         .info-content.Register {
-            /* display: none; */
             left: 0;
             text-align: left;
             padding: 0 150px 60px 38px;
@@ -261,8 +274,7 @@
             top: -5px;
             height: 600px;
             width: 850px;
-            background: linear-gradient(45deg, #25252b, #ff2770);
-            /*transform: rotate(10deg) skewY(40deg);*/
+            background: linear-gradient(45deg, #25252b, #00aeff);
             transform: rotate(10deg) skewY(40deg);
             transform-origin: bottom right;
             transition: 1.5s ease;
@@ -281,7 +293,7 @@
             height: 700px;
             width: 850px;
             background: #25252b;
-            border-top: 3px solid #ff2770;
+            border-top: 3px solid #00aeff;
             transform: rotate(0deg) skewY(0deg);
             transform-origin: bottom left;
             transition: 1.5s ease;
@@ -304,6 +316,9 @@
 </head>
 
 <body>
+    <div class="logo-container">
+        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo">
+    </div>
     <div class="container">
         <div class="curved-shape"></div>
         <div class="curved-shape2"></div>
@@ -317,7 +332,7 @@
                     <label for="name">Name</label>
                     <box-icon type='solid' name='user'></box-icon>
                     @error('name')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -326,7 +341,7 @@
                     <label for="email">Email</label>
                     <box-icon name='envelope' type='solid'></box-icon>
                     @error('email')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -335,7 +350,7 @@
                     <label for="phone">Phone</label>
                     <box-icon name='phone' type='solid'></box-icon>
                     @error('phone')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -351,8 +366,6 @@
 
         <div class="info-content Login">
             <h2 class="animation" style="--D:0; --S:20">Register as a Teacher!</h2>
-            {{-- <p class="animation" style="--D:1; --S:21">We are happy to have you with us again. If you need anything, we
-                are here to help.</p> --}}
         </div>
 
         <div class="form-box Register">
@@ -360,12 +373,11 @@
             <form action="{{ route('student.store') }}" method="POST">
                 @csrf
                 <div class="input-box animation" style="--li:18; --S:1">
-                    <input type="text" id="name" name="name" oninput="this.setAttribute('value', this.value)"
-                        required>
+                    <input type="text" id="name" name="name" oninput="this.setAttribute('value', this.value)" required>
                     <label for="name">Name</label>
                     <box-icon type='solid' name='user'></box-icon>
                     @error('name')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -375,7 +387,7 @@
                     <label for="email">Email</label>
                     <box-icon name='envelope' type='solid'></box-icon>
                     @error('email')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -385,7 +397,7 @@
                     <label for="phone">Phone</label>
                     <box-icon name='phone' type='solid'></box-icon>
                     @error('phone')
-                        <span class="error-message">{{ $message }}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -401,21 +413,19 @@
 
         <div class="info-content Register">
             <h2 class="animation" style="--li:17; --S:0">Register as a Student!</h2>
-
         </div>
-
     </div>
 
     @if (session('success'))
-        <div id="custom-alert" class="custom-alert">
-            <div class="custom-alert-content">
-                <p>{{ session('success') }}</p>
-                <button onclick="closeAlert()">OK</button>
-            </div>
+    <div id="custom-alert" class="custom-alert">
+        <div class="custom-alert-content">
+            <p>{{ session('success') }}</p>
+            <button onclick="closeAlert()">OK</button>
         </div>
+    </div>
 
-        <script>
-            function closeAlert() {
+    <script>
+        function closeAlert() {
                 document.getElementById('custom-alert').style.display = 'none';
             }
 
@@ -423,38 +433,37 @@
             setTimeout(() => {
                 closeAlert();
             }, 3000);
-        </script>
+    </script>
 
-        <style>
-            .custom-alert {
-                position: fixed;
-                top: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #28a745;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 5px;
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                text-align: center;
-                z-index: 9999;
-                width: 300px;
-                font-size: 16px;
-            }
+    <style>
+        .custom-alert {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 9999;
+            width: 300px;
+            font-size: 16px;
+        }
 
-            .custom-alert-content button {
-                background: white;
-                color: #28a745;
-                border: none;
-                padding: 5px 10px;
-                margin-top: 10px;
-                cursor: pointer;
-                border-radius: 3px;
-            }
-        </style>
+        .custom-alert-content button {
+            background: white;
+            color: #28a745;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
     @endif
 
-    <!-- Include SweetAlert -->
     @include('sweetalert::alert')
 
     <script src="index.js"></script>
