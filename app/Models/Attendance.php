@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attendance extends Model
 {
@@ -25,6 +26,11 @@ class Attendance extends Model
         return $this->belongsToMany(Student::class, 'attendance_student')
             ->withPivot(['status', 'remarks'])
             ->withTimestamps();
+    }
+
+    public function attendanceStudents(): HasMany
+    {
+        return $this->hasMany(AttendanceStudent::class, 'attendance_id');
     }
 
     public function teachers(): BelongsTo
@@ -48,6 +54,11 @@ class Attendance extends Model
     }
 
     public function section(): BelongsTo
+    {
+        return $this->belongsTo(Section::class, 'section_id');
+    }
+
+    public function sections(): BelongsTo
     {
         return $this->belongsTo(Section::class, 'section_id');
     }

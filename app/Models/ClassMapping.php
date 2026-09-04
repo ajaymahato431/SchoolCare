@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClassMapping extends Model
 {
@@ -21,37 +22,42 @@ class ClassMapping extends Model
         'end_date' => 'date',
     ];
 
-    public function students()
+    public function students(): BelongsTo
     {
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    public function student()
+    public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    public function grades()
+    public function grades(): BelongsTo
     {
         return $this->belongsTo(Grade::class, 'grade_id');
     }
 
-    public function grade()
+    public function grade(): BelongsTo
     {
         return $this->belongsTo(Grade::class, 'grade_id');
     }
 
-    public function sections()
+    public function sections(): BelongsTo
     {
         return $this->belongsTo(Section::class, 'section_id');
     }
 
-    public function section()
+    public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class, 'section_id');
     }
 
-    public function batchYear()
+    public function batchYear(): BelongsTo
+    {
+        return $this->belongsTo(BatchYear::class, 'batch_year_id');
+    }
+
+    public function batchYears(): BelongsTo
     {
         return $this->belongsTo(BatchYear::class, 'batch_year_id');
     }

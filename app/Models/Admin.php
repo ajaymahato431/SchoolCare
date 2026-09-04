@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -13,7 +14,6 @@ class Admin extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $guard = 'admins';
-
 
     /**
      * The attributes that are mass assignable.
@@ -49,7 +49,12 @@ class Admin extends Authenticatable
         ];
     }
 
-    public function adminDetails()
+    public function adminDetails(): HasOne
+    {
+        return $this->hasOne(AdminDetail::class, 'admin_id');
+    }
+
+    public function adminDetail(): HasOne
     {
         return $this->hasOne(AdminDetail::class, 'admin_id');
     }

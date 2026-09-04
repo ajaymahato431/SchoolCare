@@ -33,17 +33,32 @@ class StudentBehavior extends Model
 
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_id');
+    }
+
+    public function students(): BelongsTo
+    {
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
+
+    public function teachers(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
     public function grade(): BelongsTo
     {
-        return $this->belongsTo(Grade::class);
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
+
+    public function grades(): BelongsTo
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
     }
 
     public function isPositive(): bool

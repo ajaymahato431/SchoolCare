@@ -4,6 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -13,7 +16,6 @@ class Teacher extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $guard = 'teachers';
-
 
     /**
      * The attributes that are mass assignable.
@@ -50,23 +52,53 @@ class Teacher extends Authenticatable
         ];
     }
 
-    public function teacherDetails()
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function teacherDetails(): HasOne
     {
         return $this->hasOne(TeacherDetail::class, 'teacher_id');
     }
 
-    public function attendances()
+    public function teacherDetail(): HasOne
+    {
+        return $this->hasOne(TeacherDetail::class, 'teacher_id');
+    }
+
+    public function subject(): HasOneThrough
+    {
+        return $this->hasOneThrough(Subject::class, TeacherDetail::class, 'teacher_id', 'id', 'id', 'subject_id');
+    }
+
+    public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'teacher_id');
     }
 
-    public function markEntries()
+    public function markEntries(): HasMany
     {
         return $this->hasMany(MarkEntry::class, 'teacher_id');
     }
 
-    public function assignments()
+    public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class, 'teacher_id');
+    }
+
+    public function studentBehaviors(): HasMany
+    {
+        return $this->hasMany(StudentBehavior::class, 'teacher_id');
+    }
+
+    public function behaviors(): HasMany
+    {
+        return $this->hasMany(StudentBehavior::class, 'teacher_id');
     }
 }

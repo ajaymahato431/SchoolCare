@@ -3,16 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Municipality extends Model
 {
-    public function teachers()
+    protected $fillable = [
+        'municipality',
+    ];
+
+    public function teacherDetails(): HasMany
     {
-        return $this->hasOne(TeacherDetail::class, 'municipality_id');
+        return $this->hasMany(TeacherDetail::class, 'municipality_id');
     }
 
-    public function students()
+    public function studentDetails(): HasMany
     {
-        return $this->hasOne(StudentDetail::class, 'municipality_id');
+        return $this->hasMany(StudentDetail::class, 'municipality_id');
+    }
+
+    public function teachers(): HasManyThrough
+    {
+        return $this->hasManyThrough(Teacher::class, TeacherDetail::class, 'municipality_id', 'id', 'id', 'teacher_id');
+    }
+
+    public function students(): HasManyThrough
+    {
+        return $this->hasManyThrough(Student::class, StudentDetail::class, 'municipality_id', 'id', 'id', 'student_id');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assignment extends Model
 {
@@ -30,6 +31,11 @@ class Assignment extends Model
         return $this->belongsToMany(Student::class, 'assignment_student')
             ->withPivot(['status', 'submitted_at', 'marks_obtained', 'feedback'])
             ->withTimestamps();
+    }
+
+    public function assignmentStudents(): HasMany
+    {
+        return $this->hasMany(AssignmentStudent::class, 'assignment_id');
     }
 
     public function teachers(): BelongsTo
