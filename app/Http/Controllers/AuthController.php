@@ -34,7 +34,7 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->back()->with('success', 'Teacher registered successfully! Login Credintials will be sent to your email.');
+        return redirect()->back()->with('success', 'Teacher registered successfully! Login credentials will be sent to your email.');
     }
 
     public function studentStore(Request $request)
@@ -47,19 +47,19 @@ class AuthController extends Controller
 
         $password = rand(11111, 99999);
 
-        // Store teacher data
+        // Store student data
         $student = Student::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($password),
         ]);
 
-        // Store phone in teacher_detail
+        // Store phone in student_detail
         StudentDetail::create([
             'student_id' => $student->id,
             'phone' => $request->phone,
         ]);
 
-        return redirect()->back()->with('success', 'Teacher registered successfully! Login Credintials will be sent to your email.');
+        return redirect()->back()->with('success', 'Student registered successfully! Login credentials will be sent to your email.');
     }
 }

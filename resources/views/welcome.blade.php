@@ -416,55 +416,41 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (session('success'))
-    <div id="custom-alert" class="custom-alert">
-        <div class="custom-alert-content">
-            <p>{{ session('success') }}</p>
-            <button onclick="closeAlert()">OK</button>
-        </div>
-    </div>
-
     <script>
-        function closeAlert() {
-                document.getElementById('custom-alert').style.display = 'none';
-            }
-
-            // Auto-close after 3 seconds
-            setTimeout(() => {
-                closeAlert();
-            }, 3000);
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: @json(session('success')),
+                background: '#1f1f25',
+                color: '#ffffff',
+                confirmButtonColor: '#00aeff',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'border-2-blue'
+                }
+            });
+        });
     </script>
-
-    <style>
-        .custom-alert {
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #28a745;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            z-index: 9999;
-            width: 300px;
-            font-size: 16px;
-        }
-
-        .custom-alert-content button {
-            background: white;
-            color: #28a745;
-            border: none;
-            padding: 5px 10px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-    </style>
     @endif
 
-    @include('sweetalert::alert')
+    @if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Error',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                background: '#1f1f25',
+                color: '#ffffff',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Review Fields'
+            });
+        });
+    </script>
+    @endif
 
     <script src="index.js"></script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>

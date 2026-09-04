@@ -36,15 +36,15 @@ class TeacherRequest extends BaseWidget
                     ->copyable()
                     ->icon('heroicon-m-envelope'),
 
-                TextColumn::make('phone')
+                TextColumn::make('teacherDetails.phone')
                     ->label('Contact')
                     ->placeholder('N/A'),
 
-                TextColumn::make('teacherDetails.qualification')
-                    ->label('Qualification')
+                TextColumn::make('teacherDetails.subject.subject')
+                    ->label('Subject Specialization')
                     ->badge()
                     ->color('warning')
-                    ->placeholder('N/A'),
+                    ->placeholder('General'),
 
                 TextColumn::make('created_at')
                     ->label('Applied')

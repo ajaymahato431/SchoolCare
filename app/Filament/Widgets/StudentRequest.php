@@ -36,12 +36,13 @@ class StudentRequest extends BaseWidget
                     ->copyable()
                     ->icon('heroicon-m-envelope'),
 
-                TextColumn::make('phone')
+                TextColumn::make('studentDetails.phone')
                     ->label('Contact')
                     ->placeholder('N/A'),
 
-                TextColumn::make('studentDetails.grades.name')
+                TextColumn::make('latestClassMapping.grade.grade')
                     ->label('Grade')
+                    ->formatStateUsing(fn ($state) => $state ? "Grade {$state}" : 'Unassigned')
                     ->badge()
                     ->color('info')
                     ->placeholder('Unassigned'),

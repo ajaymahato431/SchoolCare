@@ -25,14 +25,14 @@ class SchoolOverviewStatsWidget extends BaseWidget
         $pendingTeachers = Teacher::where('status', 'pending')->count();
 
         $activeBatch = BatchYear::where('is_active', true)->first();
-        $batchLabel = $activeBatch ? $activeBatch->name : (BatchYear::latest()->value('name') ?? 'Not Configured');
+        $batchLabel = $activeBatch ? $activeBatch->batch : (BatchYear::latest()->value('batch') ?? 'Not Configured');
 
         $gradesCount = Grade::count();
         $sectionsCount = Section::count();
         $subjectsCount = Subject::count();
 
-        $meritsCount = StudentBehavior::where('type', 'merit')->count();
-        $infractionsCount = StudentBehavior::where('type', 'infraction')->count();
+        $meritsCount = StudentBehavior::where('type', 'positive')->count();
+        $infractionsCount = StudentBehavior::where('type', 'negative')->count();
 
         return [
             Stat::make('Active Students', (string) $activeStudents)
