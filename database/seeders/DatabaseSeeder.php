@@ -66,12 +66,35 @@ class DatabaseSeeder extends Seeder
                     $value => ExamType::query()->firstOrCreate(['exam_type' => $value]),
                 ]);
 
-                $batchYears = collect(['2023/24', '2024/25'])->mapWithKeys(fn(string $value) => [
-                    $value => BatchYear::query()->firstOrCreate(['batch' => $value]),
+                $batchYears = collect([
+                    '2023/24' => false,
+                    '2024/25' => true,
+                ])->map(function (bool $isActive, string $value) {
+                    return BatchYear::query()->updateOrCreate(
+                        ['batch' => $value],
+                        ['is_active' => $isActive]
+                    );
+                });
+
+                $subjects = collect([
+                    ['subject' => 'Mathematics', 'code' => 'MTH-101', 'full_marks' => 100, 'pass_marks' => 40],
+                    ['subject' => 'Science', 'code' => 'SCI-101', 'full_marks' => 100, 'pass_marks' => 40],
+                    ['subject' => 'English', 'code' => 'ENG-101', 'full_marks' => 100, 'pass_marks' => 40],
+                ])->mapWithKeys(fn(array $data) => [
+                    $data['subject'] => Subject::query()->updateOrCreate(
+                        ['subject' => $data['subject']],
+                        $data
+                    ),
+                ]);
+
+                $examTypes = collect(['Mid Term', 'Final Term'])->mapWithKeys(fn(string $value) => [
+                    $value => ExamType::query()->firstOrCreate(['exam_type' => $value]),
                 ]);
 
                 $gradeNine = $grades->get(9);
+                $gradeTen = $grades->get(10);
                 $sectionA = $sections->get('A');
+                $sectionB = $sections->get('B');
                 $kathmandu = $municipalities->get('Kathmandu Metropolitan');
                 $lalitpur = $municipalities->get('Lalitpur Metropolitan');
                 $wardOne = $wards->get(1);
@@ -128,6 +151,27 @@ class DatabaseSeeder extends Seeder
                     ]
                 );
 
+                // Additional pending teacher for UX demonstration
+                $pendingTeacher = Teacher::query()->firstOrNew(['email' => 'sarah.smith@gmail.com']);
+                $pendingTeacher->fill([
+                    'name' => 'Sarah Smith',
+                    'password' => 'password',
+                    'status' => 'pending',
+                ]);
+                $pendingTeacher->save();
+
+                TeacherDetail::query()->updateOrCreate(
+                    ['teacher_id' => $pendingTeacher->id],
+                    [
+                        'phone' => '9800000012',
+                        'address' => 'Kathmandu',
+                        'gender' => 'Female',
+                        'municipality_id' => $kathmandu?->id,
+                        'ward_id' => $wardOne?->id,
+                        'subject_id' => $math?->id,
+                    ]
+                );
+
                 $student = Student::query()->firstOrNew(['email' => 'student@gmail.com']);
                 $student->fill([
                     'name' => 'Model Student',
@@ -156,8 +200,44 @@ class DatabaseSeeder extends Seeder
                         'section_id' => $sectionA?->id,
                     ],
                     [
+                        'batch_year_id' => $batch2425?->id,
+                        'roll_no' => '01',
                         'start_date' => Carbon::now()->subMonths(2)->toDateString(),
                         'end_date' => null,
+                    ]
+                );
+
+                // Additional pending student for UX testing
+                $pendingStudent = Student::query()->firstOrNew(['email' => 'alex.doe@gmail.com']);
+                $pendingStudent->fill([
+                    'name' => 'Alex Doe',
+                    'password' => 'password',
+                    'status' => 'pending',
+                ]);
+                $pendingStudent->save();
+
+                StudentDetail::query()->updateOrCreate(
+                    ['student_id' => $pendingStudent->id],
+                    [
+                        'phone' => '9800000025',
+                        'address' => 'Lalitpur',
+                        'gender' => 'Male',
+                        'municipality_id' => $lalitpur?->id,
+                        'ward_id' => $wardTwo?->id,
+                        'blood_group' => 'A+',
+                    ]
+                );
+
+                ClassMapping::query()->updateOrCreate(
+                    [
+                        'student_id' => $pendingStudent->id,
+                        'grade_id' => $gradeNine?->id,
+                        'section_id' => $sectionA?->id,
+                    ],
+                    [
+                        'batch_year_id' => $batch2425?->id,
+                        'roll_no' => '02',
+                        'start_date' => Carbon::now()->toDateString(),
                     ]
                 );
 
@@ -167,9 +247,11 @@ class DatabaseSeeder extends Seeder
                         'start_date' => Carbon::now()->subMonths(1)->toDateString(),
                     ],
                     [
+                        'category' => 'STEM',
                         'end_date' => Carbon::now()->subMonths(1)->addDays(2)->toDateString(),
                         'organizer' => 'Science Club',
                         'address' => 'School Auditorium',
+                        'description' => 'Inter-school STEM project exhibition and innovation competition.',
                     ]
                 );
 
@@ -180,6 +262,8 @@ class DatabaseSeeder extends Seeder
                     ],
                     [
                         'obtained_rank' => 'First',
+                        'role_or_position' => 'Team Lead & Presenter',
+                        'certificate_issued' => true,
                     ]
                 );
 
@@ -187,8 +271,10 @@ class DatabaseSeeder extends Seeder
                     ['name' => 'Merit Scholarship'],
                     [
                         'amount' => 1500,
-                        'criteria' => 'Awarded to top-performing students',
+                        'criteria' => 'Awarded to top-performing students in academics and discipline',
                         'year' => '2024',
+                        'status' => 'active',
+                        'batch_year_id' => $batch2425?->id,
                     ]
                 );
 
@@ -210,7 +296,9 @@ class DatabaseSeeder extends Seeder
                         'teacher_id' => $teacher->id,
                         'grade_id' => $gradeNine?->id,
                     ],
-                    []
+                    [
+                        'section_id' => $sectionA?->id,
+                    ]
                 );
 
                 DB::table('attendance_student')->updateOrInsert(
@@ -219,6 +307,8 @@ class DatabaseSeeder extends Seeder
                         'student_id' => $student->id,
                     ],
                     [
+                        'status' => 'present',
+                        'remarks' => 'On time',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]
@@ -226,12 +316,14 @@ class DatabaseSeeder extends Seeder
 
                 $assignment = Assignment::query()->updateOrCreate(
                     [
-                        'name' => 'Science Project',
+                        'name' => 'Science Project Report',
                         'teacher_id' => $teacher->id,
                         'grade_id' => $gradeNine?->id,
                         'subject_id' => $science?->id,
                     ],
                     [
+                        'description' => 'Write a comprehensive 5-page report on renewable energy solutions.',
+                        'max_marks' => 100,
                         'assignment_date' => Carbon::now()->subDays(7)->toDateString(),
                         'submission_date' => Carbon::now()->addDays(7)->toDateString(),
                     ]
@@ -243,11 +335,16 @@ class DatabaseSeeder extends Seeder
                         'student_id' => $student->id,
                     ],
                     [
+                        'status' => 'submitted',
+                        'submitted_at' => Carbon::now()->subDays(2),
+                        'marks_obtained' => 95.0,
+                        'feedback' => 'Well-researched and clearly articulated.',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]
                 );
 
+                // Legacy behavior entries for backward compatibility
                 PositiveBehaviour::query()->updateOrCreate(
                     [
                         'student_id' => $student->id,
@@ -270,6 +367,43 @@ class DatabaseSeeder extends Seeder
                     ]
                 );
 
+                // Unified Student Behaviors (Merit & Demerit)
+                \App\Models\StudentBehavior::query()->updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'title' => 'Exemplary Lab Mentorship',
+                    ],
+                    [
+                        'teacher_id' => $teacher->id,
+                        'grade_id' => $gradeNine?->id,
+                        'type' => 'positive',
+                        'category' => 'Leadership',
+                        'severity' => 'exceptional',
+                        'description' => 'Guided junior peers through safety protocols and demonstrated exceptional teamwork in chemistry experiments.',
+                        'action_taken' => 'Commendation Certificate',
+                        'points' => 10,
+                        'event_date' => Carbon::now()->subWeeks(1)->toDateString(),
+                    ]
+                );
+
+                \App\Models\StudentBehavior::query()->updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'title' => 'Late Homework Submission',
+                    ],
+                    [
+                        'teacher_id' => $teacher->id,
+                        'grade_id' => $gradeNine?->id,
+                        'type' => 'negative',
+                        'category' => 'Punctuality',
+                        'severity' => 'minor',
+                        'description' => 'Submitted assignment 2 days after deadline without prior notification.',
+                        'action_taken' => 'Verbal Reminder & Grace Extension',
+                        'points' => -2,
+                        'event_date' => Carbon::now()->subWeeks(2)->toDateString(),
+                    ]
+                );
+
                 MarkEntry::query()->updateOrCreate(
                     [
                         'student_id' => $student->id,
@@ -281,6 +415,8 @@ class DatabaseSeeder extends Seeder
                     [
                         'teacher_id' => $teacher->id,
                         'marks_obtained' => 88.5,
+                        'full_marks' => 100,
+                        'pass_marks' => 40,
                         'remarks' => 'Great grasp of core concepts',
                     ]
                 );
@@ -296,6 +432,8 @@ class DatabaseSeeder extends Seeder
                     [
                         'teacher_id' => $teacher->id,
                         'marks_obtained' => 92.0,
+                        'full_marks' => 100,
+                        'pass_marks' => 40,
                         'remarks' => 'Outstanding experimental skills',
                     ]
                 );

@@ -26,7 +26,7 @@ class MarkEntryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-numbered-list';
 
-    protected static ?string $navigationGroup = 'Tracking';
+    protected static ?string $navigationGroup = 'Classroom & Teaching';
 
     protected static ?int $navigationSort = 3;
 
@@ -101,79 +101,166 @@ class MarkEntryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('students.name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('grades.grade')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('examTypes.exam_type')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('subjects.subject')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('marks_obtained')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('remarks')
-                    ->limit(30)
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('batchYears.batch')
+                    ->label('Session')
+                    ->badge()
+                    ->color('gray')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('teachers.name')
+
+                Tables\Columns\TextColumn::make('students.name')
+                    ->label('Student')
+                    ->weight('bold')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('grades.grade')
+                    ->label('Grade')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('subjects.subject')
+                    ->label('Subject')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('examTypes.exam_type')
+                    ->label('Exam Term')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+
+                // In-table quick editable marks column!
+                Tables\Columns\TextInputColumn::make('marks_obtained')
+                    ->label('Marks (Quick Edit)')
+                    ->rules(['numeric', 'min:0'])
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('full_marks')
+                    ->label('Max')
+                    ->numeric(),
+
+                Tables\Columns\TextColumn::make('percentage')
+                    ->label('Score')
+                    ->state(fn (MarkEntry $record): string => ($record->percentage ?? 0) . '%')
+                    ->badge()
+                    ->color(fn (MarkEntry $record): string => ($record->is_pass ?? false) ? 'success' : 'danger'),
+
+                Tables\Columns\TextColumn::make('remarks')
+                    ->label('Remarks')
+                    ->limit(20)
+                    ->placeholder('—'),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('bulkClassEntry')
+                    ->label('⚡ Record Class Marks in Bulk')
+                    ->icon('heroicon-o-bolt')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Grid::make(3)->schema([
+                            Forms\Components\Select::make('batch_year_id')
+                                ->label('Session')
+                                ->relationship('batchYears', 'batch')
+                                ->default(fn () => BatchYear::where('is_active', true)->value('id'))
+                                ->required(),
+
+                            Forms\Components\Select::make('grade_id')
+                                ->label('Grade')
+                                ->relationship('grades', 'grade')
+                                ->required(),
+
+                            Forms\Components\Select::make('section_id')
+                                ->label('Section')
+                                ->options(\App\Models\Section::pluck('section', 'id'))
+                                ->required(),
+                        ]),
+
+                        Forms\Components\Grid::make(2)->schema([
+                            Forms\Components\Select::make('exam_type_id')
+                                ->label('Exam Term')
+                                ->relationship('examTypes', 'exam_type')
+                                ->required(),
+
+                            Forms\Components\Select::make('subject_id')
+                                ->label('Subject')
+                                ->relationship('subjects', 'subject')
+                                ->required(),
+                        ]),
+
+                        Forms\Components\Repeater::make('student_marks')
+                            ->label('Student Scores')
+                            ->schema([
+                                Forms\Components\Select::make('student_id')
+                                    ->label('Student')
+                                    ->relationship('students', 'name')
+                                    ->required(),
+
+                                Forms\Components\TextInput::make('marks_obtained')
+                                    ->label('Marks Obtained')
+                                    ->numeric()
+                                    ->required(),
+
+                                Forms\Components\TextInput::make('remarks')
+                                    ->label('Remarks')
+                                    ->placeholder('Optional notes'),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('+ Add Student Score')
+                            ->collapsible(),
+                    ])
+                    ->action(function (array $data) {
+                        $teacherId = Auth::id() ?: 1;
+                        $savedCount = 0;
+
+                        if (!empty($data['student_marks'])) {
+                            foreach ($data['student_marks'] as $row) {
+                                if (!empty($row['student_id']) && isset($row['marks_obtained'])) {
+                                    MarkEntry::updateOrCreate(
+                                        [
+                                            'student_id' => $row['student_id'],
+                                            'grade_id' => $data['grade_id'],
+                                            'exam_type_id' => $data['exam_type_id'],
+                                            'subject_id' => $data['subject_id'],
+                                            'batch_year_id' => $data['batch_year_id'],
+                                        ],
+                                        [
+                                            'teacher_id' => $teacherId,
+                                            'marks_obtained' => $row['marks_obtained'],
+                                            'full_marks' => 100,
+                                            'pass_marks' => 40,
+                                            'remarks' => $row['remarks'] ?? null,
+                                        ]
+                                    );
+                                    $savedCount++;
+                                }
+                            }
+                        }
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Class Marks Recorded')
+                            ->body("Successfully entered marks for {$savedCount} students.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->filters([
-                // Filter for Grades
-                SelectFilter::make('grade_id')
-                    ->label('Grade')
-                    ->relationship('grades', 'grade') // Assuming a relationship 'grades' exists
-                    ->options(function () {
-                        return Grade::pluck('grade', 'id'); // Fetch grade options
-                    })
-                    ->searchable()
-                    ->preload(),
-
-                // Filter for Exam Types
-                SelectFilter::make('exam_type_id')
-                    ->label('Exam Type')
-                    ->relationship('examTypes', 'exam_type') // Assuming a relationship 'examTypes' exists
-                    ->options(function () {
-                        return ExamType::pluck('exam_type', 'id'); // Fetch exam type options
-                    })
-                    ->searchable()
-                    ->preload(),
-
-                // Filter for Subjects
-                SelectFilter::make('subject_id')
-                    ->label('Subject')
-                    ->relationship('subjects', 'subject') // Assuming a relationship 'subjects' exists
-                    ->options(function () {
-                        return Subject::pluck('subject', 'id'); // Fetch subject options
-                    })
-                    ->searchable()
-                    ->preload(),
-
-                // Filter for Batch Years
                 SelectFilter::make('batch_year_id')
                     ->label('Batch Year')
-                    ->relationship('batchYears', 'batch') // Assuming a relationship 'batchYears' exists
-                    ->options(function () {
-                        return BatchYear::pluck('batch', 'id'); // Fetch batch year options
-                    })
-                    ->searchable()
+                    ->relationship('batchYears', 'batch')
+                    ->preload(),
+
+                SelectFilter::make('grade_id')
+                    ->label('Grade')
+                    ->relationship('grades', 'grade')
+                    ->preload(),
+
+                SelectFilter::make('subject_id')
+                    ->label('Subject')
+                    ->relationship('subjects', 'subject')
+                    ->preload(),
+
+                SelectFilter::make('exam_type_id')
+                    ->label('Exam Type')
+                    ->relationship('examTypes', 'exam_type')
                     ->preload(),
             ])
-            ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

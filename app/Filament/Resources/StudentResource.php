@@ -3,137 +3,202 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentResource\Pages;
-use App\Filament\Resources\StudentResource\RelationManagers;
+use App\Models\Grade;
+use App\Models\Section as SchoolSection;
 use App\Models\Student;
+use App\Models\Ward;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Eloquent\Collection;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class StudentResource extends Resource
 {
     protected static ?string $model = Student::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationGroup = 'User Section';
+    protected static ?string $navigationGroup = 'Student Affairs';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::where('status', 'pending')->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Students awaiting approval';
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Student Information')
+                Section::make('Account Credentials & Status')
+                    ->description('Basic login credentials and verification status')
+                    ->icon('heroicon-o-user')
                     ->schema([
-                        Fieldset::make('Account Details')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Full Name')
-                                    ->required()
-                                    ->maxLength(255),
+                        TextInput::make('name')
+                            ->label('Full Name')
+                            ->placeholder('e.g. John Doe')
+                            ->required()
+                            ->maxLength(255),
 
-                                TextInput::make('email')
-                                    ->email()
-                                    ->required()
-                                    ->maxLength(255),
+                        TextInput::make('email')
+                            ->label('Email Address')
+                            ->email()
+                            ->placeholder('student@example.com')
+                            ->required()
+                            ->unique(Student::class, 'email', ignoreRecord: true)
+                            ->maxLength(255),
 
-                                DateTimePicker::make('email_verified_at')
-                                    ->label('Email Verified At'),
-
-                                TextInput::make('password')
-                                    ->password()
-                                    ->hiddenOn('edit')
-                                    ->required()
-                                    ->maxLength(255),
-
-                                Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'pending' => 'Pending',
-                                        'approved' => 'Approved',
-                                        'rejected' => 'Rejected',
-                                    ])
-                                    ->required(),
-                            ]),
-                    ]),
-
-                Section::make('Personal Details')
-                    ->schema([
-                        Repeater::make('student_details')
-                            ->relationship('studentDetails')
-                            ->label('')
-                            ->schema([
-                                TextInput::make('phone')
-                                    ->label('Phone')
-                                    ->maxLength(15)
-                                    ->nullable(),
-
-                                TextInput::make('address')
-                                    ->label('Address')
-                                    ->nullable(),
-
-                                Select::make('gender')
-                                    ->label('Gender')
-                                    ->options([
-                                        'Male' => 'Male',
-                                        'Female' => 'Female',
-                                        'Other' => 'Other',
-                                    ])
-                                    ->nullable(),
-
-                                Select::make('municipality_id')
-                                    ->label('Municipality')
-                                    ->relationship('municipalities', 'municipality')
-                                    ->nullable(),
-
-                                Select::make('ward_id')
-                                    ->label('Ward')
-                                    ->relationship('wards', 'ward')
-                                    ->nullable(),
-
-                                TextInput::make('blood_group')
-                                    ->label('Blood Group')
-                                    ->nullable(),
+                        Select::make('status')
+                            ->label('Admission Status')
+                            ->options([
+                                'approved' => 'Approved',
+                                'pending' => 'Pending Review',
+                                'rejected' => 'Rejected',
                             ])
-                            ->defaultItems(1)
-                            ->columns(3)
-                            ->columnSpanFull()
-                            ->deletable(false)
-                            ->disableItemCreation(),
-                    ]),
+                            ->default('approved')
+                            ->native(false)
+                            ->required(),
 
+                        TextInput::make('password')
+                            ->password()
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $operation): bool => $operation === 'create')
+                            ->placeholder('••••••••')
+                            ->maxLength(255)
+                            ->helperText('Leave blank on edit to preserve existing password.'),
+                    ])
+                    ->columns(2),
 
-                Section::make('Class Mapping')
+                Section::make('Personal Profile & Contact')
+                    ->description('Contact, physical location, and health info')
+                    ->icon('heroicon-o-identification')
+                    ->relationship('studentDetails')
                     ->schema([
-                        Repeater::make('class_mappings')
+                        TextInput::make('phone')
+                            ->label('Contact Phone')
+                            ->tel()
+                            ->placeholder('98XXXXXXXX')
+                            ->maxLength(20),
+
+                        Select::make('gender')
+                            ->label('Gender')
+                            ->options([
+                                'Male' => 'Male',
+                                'Female' => 'Female',
+                                'Other' => 'Other',
+                            ])
+                            ->native(false),
+
+                        Select::make('blood_group')
+                            ->label('Blood Group')
+                            ->options([
+                                'A+' => 'A+',
+                                'A-' => 'A-',
+                                'B+' => 'B+',
+                                'B-' => 'B-',
+                                'AB+' => 'AB+',
+                                'AB-' => 'AB-',
+                                'O+' => 'O+',
+                                'O-' => 'O-',
+                            ])
+                            ->native(false),
+
+                        Select::make('municipality_id')
+                            ->label('Municipality')
+                            ->relationship('municipality', 'municipality')
+                            ->searchable()
+                            ->preload()
+                            ->live(),
+
+                        Select::make('ward_id')
+                            ->label('Ward')
+                            ->options(function (Get $get) {
+                                $municipalityId = $get('municipality_id');
+                                if (!$municipalityId) {
+                                    return Ward::pluck('ward', 'id');
+                                }
+                                return Ward::where('municipality_id', $municipalityId)->pluck('ward', 'id');
+                            })
+                            ->searchable()
+                            ->preload(),
+
+                        TextInput::make('address')
+                            ->label('Street Address')
+                            ->placeholder('e.g. Ward 4, New Road'),
+                    ])
+                    ->columns(3),
+
+                Section::make('Class Enrollments & History')
+                    ->description('Academic session, class, section, and roll number assignment')
+                    ->icon('heroicon-o-calendar-days')
+                    ->schema([
+                        Repeater::make('classMappings')
                             ->relationship('classMappings')
                             ->label('')
                             ->schema([
+                                Select::make('batch_year_id')
+                                    ->label('Academic Year')
+                                    ->relationship('batchYear', 'batch')
+                                    ->default(fn () => \App\Models\BatchYear::where('is_active', true)->value('id'))
+                                    ->required(),
+
                                 Select::make('grade_id')
-                                    ->required()
-                                    ->relationship('grades', 'grade'),
+                                    ->label('Grade / Class')
+                                    ->relationship('grades', 'grade')
+                                    ->required(),
+
                                 Select::make('section_id')
-                                    ->required()
-                                    ->relationship('sections', 'section'),
-                                DatePicker::make('start_date'),
-                                DatePicker::make('end_date'),
+                                    ->label('Section')
+                                    ->relationship('sections', 'section')
+                                    ->required(),
+
+                                TextInput::make('roll_no')
+                                    ->label('Roll Number')
+                                    ->placeholder('e.g. 15')
+                                    ->maxLength(30),
+
+                                DatePicker::make('start_date')
+                                    ->label('Enrolled Date')
+                                    ->default(now()),
+
+                                DatePicker::make('end_date')
+                                    ->label('Completion Date'),
                             ])
-                            ->defaultItems(1)
                             ->columns(3)
-                            ->columnSpanFull()
-                            ->deletable(false)
+                            ->defaultItems(1)
+                            ->addActionLabel('+ Enroll in Another Class / Year')
+                            ->collapsible(),
                     ]),
             ]);
     }
@@ -142,72 +207,153 @@ class StudentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable(),
+
+                TextColumn::make('name')
+                    ->label('Student Name')
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('studentDetails.phone')
-                    ->searchable()
+
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->icon('heroicon-m-envelope')
+                    ->copyable()
+                    ->searchable(),
+
+                TextColumn::make('studentDetails.phone')
                     ->label('Phone')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('studentDetails.address')
-                    ->searchable()
-                    ->label('Address')
-                    ->sortable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options([
-                        'approved' => 'Approved',
-                        'reject' => 'Reject',
-                        'pending' => 'Pending',
+                    ->icon('heroicon-m-phone')
+                    ->placeholder('—'),
+
+                TextColumn::make('latestClassMapping.grades.grade')
+                    ->label('Grade')
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('Unassigned'),
+
+                TextColumn::make('latestClassMapping.sections.section')
+                    ->label('Sec')
+                    ->placeholder('—'),
+
+                TextColumn::make('latestClassMapping.roll_no')
+                    ->label('Roll')
+                    ->placeholder('—'),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'success' => 'approved',
+                        'warning' => 'pending',
+                        'danger' => 'rejected',
+                    ])
+                    ->icons([
+                        'heroicon-m-check-circle' => 'approved',
+                        'heroicon-m-clock' => 'pending',
+                        'heroicon-m-x-circle' => 'rejected',
                     ]),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+
+                TextColumn::make('created_at')
+                    ->label('Registered')
+                    ->dateTime('M d, Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'pending' => 'Pending Review',
+                        'rejected' => 'Rejected',
+                    ]),
+
+                SelectFilter::make('grade')
+                    ->relationship('classMappings.grades', 'grade')
+                    ->label('Filter by Grade'),
             ])
             ->actions([
-                Tables\Actions\Action::make('Download Report')
-                    ->url(fn($record) => route('studentReport.pdf', $record->id))
-                    ->openUrlInNewTab()
-                    ->label('Download Report')
-                    ->icon('heroicon-o-arrow-down-tray'),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // 1-Click Instant Approve
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check')
+                    ->color('success')
+                    ->visible(fn (Student $record): bool => $record->status !== 'approved')
+                    ->action(function (Student $record) {
+                        $record->update(['status' => 'approved']);
+                        Notification::make()
+                            ->title('Student Approved')
+                            ->body("{$record->name} has been approved successfully.")
+                            ->success()
+                            ->send();
+                    }),
+
+                // 1-Click Instant Reject
+                Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Student $record): bool => $record->status !== 'rejected')
+                    ->action(function (Student $record) {
+                        $record->update(['status' => 'rejected']);
+                        Notification::make()
+                            ->title('Student Rejected')
+                            ->body("{$record->name} status changed to rejected.")
+                            ->danger()
+                            ->send();
+                    }),
+
+                // Download Comprehensive PDF Report
+                Action::make('downloadReport')
+                    ->label('Report')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (Student $record): string => route('studentReport.pdf', $record->id))
+                    ->openUrlInNewTab(),
+
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-
-                    Tables\Actions\BulkAction::make('approved')
+                    BulkAction::make('bulkApprove')
                         ->label('Approve Selected')
-                        ->action(
-                            fn(Collection $records) => $records->each->update(['status' => 'approved'])
-                        )
+                        ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->icon('heroicon-o-check')
-                        ->requiresConfirmation(),
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $records->each->update(['status' => 'approved']);
+                            Notification::make()
+                                ->title('Students Approved')
+                                ->body(count($records) . ' students approved successfully.')
+                                ->success()
+                                ->send();
+                        }),
 
-                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('bulkReject')
+                        ->label('Reject Selected')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $records->each->update(['status' => 'rejected']);
+                            Notification::make()
+                                ->title('Students Rejected')
+                                ->body(count($records) . ' students marked as rejected.')
+                                ->danger()
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

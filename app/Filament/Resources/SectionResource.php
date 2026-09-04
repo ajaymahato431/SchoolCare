@@ -17,9 +17,8 @@ class SectionResource extends Resource
 {
     protected static ?string $model = Section::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
-    protected static ?string $navigationGroup = 'Setup';
-
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationGroup = 'Academic Management';
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
@@ -27,6 +26,8 @@ class SectionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('section')
+                    ->label('Section Name / Code')
+                    ->placeholder('e.g. A, B, Ruby, Diamond')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -37,12 +38,17 @@ class SectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('section')
+                    ->label('Section')
+                    ->weight('bold')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('class_mappings_count')
+                    ->counts('classMappings')
+                    ->label('Enrolled Students')
+                    ->badge()
+                    ->color('info'),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

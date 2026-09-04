@@ -21,36 +21,50 @@ class ScholorshipResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationGroup = 'Tracking';
+    protected static ?string $navigationGroup = 'Discipline & ECA';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationLabel = 'Scholarships';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Scholorship Information')
+                Section::make('Scholarship Details')
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->label('Scholarship Title')
+                            ->placeholder('e.g. Merit Scholarship 2024')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('amount')
+                            ->label('Amount (NPR / $)')
+                            ->prefix('Rs.')
                             ->required()
                             ->numeric(),
+                        Forms\Components\Select::make('batch_year_id')
+                            ->label('Academic Session')
+                            ->relationship('batchYear', 'batch')
+                            ->default(fn () => \App\Models\BatchYear::where('is_active', true)->value('id')),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'active' => 'Active',
+                                'inactive' => 'Inactive / Closed',
+                            ])
+                            ->default('active')
+                            ->native(false),
                         Forms\Components\RichEditor::make('criteria')
+                            ->label('Eligibility & Selection Criteria')
                             ->required()
                             ->columnSpanFull(),
-
-                        Forms\Components\DatePicker::make('year')
-                            ->label('Distributed Year')
-
                     ])->columns(2),
 
-                Section::make('Scholorship Holder Students')
+                Section::make('Scholarship Beneficiaries (Students)')
                     ->schema([
                         CheckboxList::make('students')
                             ->columnSpan('full')
-                            ->columns(5)
+                            ->columns(4)
                             ->bulkToggleable()
                             ->searchable()
                             ->relationship('students', 'name'),
@@ -63,19 +77,30 @@ class ScholorshipResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Scholarship')
+                    ->weight('bold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('amount')
-                    ->numeric()
+                    ->label('Amount')
+                    ->money('NPR')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('year')
-                    ->date()
-                    ->label('Distributed Year')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('batchYear.batch')
+                    ->label('Session')
+                    ->badge()
+                    ->color('primary')
+                    ->placeholder('General'),
+                Tables\Columns\TextColumn::make('students_count')
+                    ->counts('students')
+                    ->label('Beneficiaries')
+                    ->badge()
+                    ->color('success'),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'success' => 'active',
+                        'danger' => 'inactive',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

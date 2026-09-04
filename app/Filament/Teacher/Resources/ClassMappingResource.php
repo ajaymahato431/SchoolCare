@@ -19,7 +19,7 @@ class ClassMappingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
-    protected static ?string $navigationGroup = 'Setup';
+    protected static ?string $navigationGroup = 'Student Affairs';
 
     protected static ?int $navigationSort = 1;
 

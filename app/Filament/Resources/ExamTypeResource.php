@@ -17,16 +17,17 @@ class ExamTypeResource extends Resource
 {
     protected static ?string $model = ExamType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    protected static ?string $navigationGroup = 'Setup';
-
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static ?string $navigationGroup = 'Academic Management';
+    protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('exam_type')
+                    ->label('Examination Term / Assessment Type')
+                    ->placeholder('e.g. First Terminal Exam, Unit Test 1')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -37,12 +38,15 @@ class ExamTypeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('exam_type')
+                    ->label('Examination Type')
+                    ->weight('bold')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('mark_entries_count')
+                    ->counts('markEntries')
+                    ->label('Marks Recorded')
+                    ->badge()
+                    ->color('info'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

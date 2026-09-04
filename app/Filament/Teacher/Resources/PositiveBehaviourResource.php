@@ -20,7 +20,7 @@ class PositiveBehaviourResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-plus';
 
-    protected static ?string $navigationGroup = 'Tracking';
+    protected static ?string $navigationGroup = 'Discipline & ECA';
 
     protected static ?int $navigationSort = 6;
 

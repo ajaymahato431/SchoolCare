@@ -33,17 +33,34 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('admins')
             ->passwordReset()
             ->authPasswordBroker('admins')
+            ->brandName('SchoolCare ERP')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->navigationGroups([
-                'Tracking',
-                'Setup',
-                'User Section',
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Academic Management')
+                    ->icon('heroicon-o-academic-cap'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Student Affairs')
+                    ->icon('heroicon-o-user-group'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Discipline & ECA')
+                    ->icon('heroicon-o-sparkles'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Administration & Users')
+                    ->icon('heroicon-o-shield-check'),
             ])
-            ->brandLogoHeight('50px')
+            ->brandLogoHeight('42px')
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::Indigo,
+                'gray' => Color::Slate,
+                'info' => Color::Sky,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -52,7 +69,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                AdvancedStatsOverviewWidget::class,
+                \App\Filament\Widgets\SchoolOverviewStatsWidget::class,
+                \App\Filament\Widgets\StudentRequest::class,
+                \App\Filament\Widgets\TeacherRequest::class,
                 ScholarshipAdvancedChartWidget::class,
                 ActivitiesAdvancedChartWidget::class,
             ])

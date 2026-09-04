@@ -22,12 +22,11 @@ class AttendanceResource extends Resource
 {
     protected static ?string $model = Attendance::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationGroup = 'Tracking';
+    protected static ?string $navigationGroup = 'Classroom & Teaching';
 
     protected static ?int $navigationSort = 1;
-
 
     public static function form(Form $form): Form
     {
@@ -36,45 +35,49 @@ class AttendanceResource extends Resource
                 Section::make('Attendance Information')
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->label('Roll Call Title')
+                            ->default(fn () => 'Daily Roll Call - ' . now()->format('M d, Y'))
                             ->required(),
-                        Forms\Components\Select::make('teacher_id')
-                            ->required()
-                            ->relationship('teachers', 'name'),
                         Forms\Components\Select::make('grade_id')
                             ->required()
                             ->relationship('grades', 'grade')
                             ->label('Select Grade')
+                            ->reactive(),
+                        Forms\Components\Select::make('section_id')
+                            ->label('Select Section')
+                            ->options(\App\Models\Section::pluck('section', 'id'))
+                            ->required()
                             ->reactive(),
                         Forms\Components\DatePicker::make('attendance_date')
                             ->default(now())
                             ->required(),
                     ])->columns(2),
 
-                Section::make('Students')
+                Section::make('Students Roll Call')
+                    ->description('Click "Select All" to mark everyone present in 1 click, then uncheck absent students')
                     ->schema([
-                        CheckboxList::make('student_id')
+                        CheckboxList::make('students')
                             ->columnSpan('full')
-                            ->columns(5)
+                            ->columns(4)
                             ->bulkToggleable()
                             ->searchable()
-                            ->label('Students')
+                            ->label('Enrolled Students (Checked = Present)')
                             ->relationship('students', 'name')
                             ->options(function (callable $get) {
-                                $selectedGradeId = $get('grade_id'); // Get the selected grade
+                                $selectedGradeId = $get('grade_id');
+                                $selectedSectionId = $get('section_id');
                                 if (!$selectedGradeId) {
                                     return [];
                                 }
 
                                 return \App\Models\Student::query()
-                                    ->whereHas('classMappings', function ($query) use ($selectedGradeId) {
-                                        $query->where('grade_id', $selectedGradeId)
-                                            ->whereRaw('id = (
-                        SELECT MAX(id)
-                        FROM class_mappings cm
-                        WHERE cm.student_id = class_mappings.student_id
-                    )');
+                                    ->whereHas('classMappings', function ($query) use ($selectedGradeId, $selectedSectionId) {
+                                        $query->where('grade_id', $selectedGradeId);
+                                        if ($selectedSectionId) {
+                                            $query->where('section_id', $selectedSectionId);
+                                        }
                                     })
-                                    ->pluck('name', 'id'); // Return an array of student names and IDs
+                                    ->pluck('name', 'id');
                             }),
                     ])
             ]);

@@ -17,9 +17,8 @@ class GradeResource extends Resource
 {
     protected static ?string $model = Grade::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    protected static ?string $navigationGroup = 'Setup';
-
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $navigationGroup = 'Academic Management';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -27,8 +26,10 @@ class GradeResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('grade')
+                    ->label('Grade / Class Name or Number')
+                    ->placeholder('e.g. 10 or Nursery')
                     ->required()
-                    ->numeric(),
+                    ->maxLength(255),
             ]);
     }
 
@@ -37,13 +38,18 @@ class GradeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('grade')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Grade')
+                    ->weight('bold')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('class_mappings_count')
+                    ->counts('classMappings')
+                    ->label('Active Students')
+                    ->badge()
+                    ->color('primary'),
+
+                Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

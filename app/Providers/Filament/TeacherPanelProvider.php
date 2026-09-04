@@ -33,18 +33,32 @@ class TeacherPanelProvider extends PanelProvider
             ->profile()
             ->authGuard('teachers')
             ->authPasswordBroker('teachers')
+            ->brandName('SchoolCare Faculty')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->navigationGroups([
-                'Tracking',
-                'Setup',
-                'User Section',
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Classroom & Teaching')
+                    ->icon('heroicon-o-book-open'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Student Affairs')
+                    ->icon('heroicon-o-user-group'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Discipline & ECA')
+                    ->icon('heroicon-o-sparkles'),
             ])
-            ->brandLogoHeight('50px')
+            ->brandLogoHeight('42px')
             ->passwordReset()
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::Indigo,
+                'gray' => Color::Slate,
+                'info' => Color::Sky,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Teacher/Resources'), for: 'App\\Filament\\Teacher\\Resources')
             ->discoverPages(in: app_path('Filament/Teacher/Pages'), for: 'App\\Filament\\Teacher\\Pages')

@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Filament\Resources\MarkEntryResource\Pages;
+
+use App\Filament\Resources\MarkEntryResource;
+use Filament\Actions;
+use Filament\Resources\Pages\EditRecord;
+
+class EditMarkEntry extends EditRecord
+{
+    protected static string $resource = MarkEntryResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\DeleteAction::make(),
+        ];
+    }
+}

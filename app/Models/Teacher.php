@@ -24,6 +24,7 @@ class Teacher extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
     ];
 
     /**
@@ -61,6 +62,11 @@ class Teacher extends Authenticatable
 
     public function markEntries()
     {
-        return $this->hasOne(MarkEntry::class, 'entered_by');
+        return $this->hasMany(MarkEntry::class, 'teacher_id');
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class, 'teacher_id');
     }
 }

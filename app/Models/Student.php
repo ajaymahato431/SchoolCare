@@ -25,6 +25,7 @@ class Student extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
     ];
 
     /**
@@ -62,17 +63,26 @@ class Student extends Authenticatable
 
     public function attendences(): BelongsToMany
     {
-        return $this->belongsToMany(Attendance::class);
+        return $this->belongsToMany(Attendance::class, 'attendance_student')
+            ->withPivot(['status', 'remarks'])
+            ->withTimestamps();
     }
 
     public function assignments(): BelongsToMany
     {
-        return $this->belongsToMany(Assignment::class);
+        return $this->belongsToMany(Assignment::class, 'assignment_student')
+            ->withPivot(['status', 'submitted_at', 'marks_obtained', 'feedback'])
+            ->withTimestamps();
     }
 
     public function scholorships(): BelongsToMany
     {
-        return $this->belongsToMany(Scholorship::class);
+        return $this->belongsToMany(Scholorship::class, 'scholorship_student');
+    }
+
+    public function scholarships(): BelongsToMany
+    {
+        return $this->belongsToMany(Scholorship::class, 'scholorship_student');
     }
 
     public function positiveBehaviours()
@@ -84,6 +94,12 @@ class Student extends Authenticatable
     {
         return $this->hasMany(NegativeBehaviour::class, 'student_id');
     }
+
+    public function behaviors()
+    {
+        return $this->hasMany(StudentBehavior::class, 'student_id');
+    }
+
     public function participations()
     {
         return $this->hasMany(StudentParticipation::class, 'student_id');
@@ -92,5 +108,10 @@ class Student extends Authenticatable
     public function classMappings()
     {
         return $this->hasMany(ClassMapping::class, 'student_id');
+    }
+
+    public function latestClassMapping()
+    {
+        return $this->hasOne(ClassMapping::class, 'student_id')->latestOfMany();
     }
 }

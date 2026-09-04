@@ -32,14 +32,21 @@ class StudentPanelProvider extends PanelProvider
             ->profile()
             ->authGuard('students')
             ->authPasswordBroker('students')
+            ->brandName('SchoolCare Portal')
             ->brandLogo(asset('img/logo.png'))
             ->favicon(asset('img/favicon.png'))
             ->sidebarCollapsibleOnDesktop()
-
-            ->brandLogoHeight('50px')
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
+            ->brandLogoHeight('42px')
             ->passwordReset()
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::Indigo,
+                'gray' => Color::Slate,
+                'info' => Color::Sky,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Student/Resources'), for: 'App\\Filament\\Student\\Resources')
             ->discoverPages(in: app_path('Filament/Student/Pages'), for: 'App\\Filament\\Student\\Pages')

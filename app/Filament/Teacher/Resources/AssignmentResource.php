@@ -24,7 +24,7 @@ class AssignmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $navigationGroup = 'Tracking';
+    protected static ?string $navigationGroup = 'Classroom & Teaching';
 
     protected static ?int $navigationSort = 2;
 

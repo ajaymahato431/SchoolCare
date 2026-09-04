@@ -17,43 +17,71 @@ class ClassMappingResource extends Resource
 {
     protected static ?string $model = ClassMapping::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $navigationGroup = 'Setup';
+    protected static ?string $navigationGroup = 'Academic Management';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('batch_year_id')
+                    ->label('Academic Session')
+                    ->relationship('batchYear', 'batch')
+                    ->default(fn () => \App\Models\BatchYear::where('is_active', true)->value('id'))
+                    ->required(),
                 Forms\Components\Select::make('student_id')
+                    ->label('Student')
+                    ->searchable()
+                    ->preload()
                     ->required()
                     ->relationship('students', 'name'),
                 Forms\Components\Select::make('grade_id')
+                    ->label('Grade / Class')
                     ->required()
                     ->relationship('grades', 'grade'),
                 Forms\Components\Select::make('section_id')
+                    ->label('Section')
                     ->required()
                     ->relationship('sections', 'section'),
-                Forms\Components\DatePicker::make('start_date'),
-                Forms\Components\DatePicker::make('end_date'),
-            ]);
+                Forms\Components\TextInput::make('roll_no')
+                    ->label('Roll Number')
+                    ->placeholder('e.g. 05')
+                    ->maxLength(30),
+                Forms\Components\DatePicker::make('start_date')
+                    ->label('Enrollment Date')
+                    ->default(now()),
+                Forms\Components\DatePicker::make('end_date')
+                    ->label('Completion Date'),
+            ])
+            ->columns(2);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('batchYear.batch')
+                    ->label('Session')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('students.name')
+                    ->label('Student')
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('grades.grade')
-                    ->searchable()
+                    ->label('Grade')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('sections.section')
-                    ->searchable()
+                    ->label('Section')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('roll_no')
+                    ->label('Roll No')
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('start_date')
                     ->date()
                     ->sortable(),
